@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Conteúdos públicos — Devin</title>
+    <style>
+      :root {
+        --bg: #10121b;
+        --card: #1c2032;
+        --card-hover: #272d47;
+        --line: #262b40;
+        --text: #ffffff;
+        --body: #c9d1e1;
+        --muted: #9db6d1;
+        --footer: #7b849d;
+        --green: #4ec9b0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--body);
+        font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 48px 24px 64px;
+      }
+      h1 {
+        color: var(--text);
+        font-size: 28px;
+        font-weight: 400;
+        margin: 0 0 6px;
+      }
+      p.sub {
+        color: var(--muted);
+        margin: 0;
+        font-size: 14px;
+      }
+      .accent {
+        width: 60px;
+        height: 3px;
+        background: var(--green);
+        margin: 14px 0 28px;
+      }
+      ul.list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      ul.list li {
+        margin-bottom: 14px;
+      }
+      a.item {
+        display: block;
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: 10px;
+        padding: 16px 18px;
+        text-decoration: none;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      a.item:hover {
+        background: var(--card-hover);
+        border-color: #3a4266;
+      }
+      a.item .title {
+        color: var(--text);
+        font-size: 17px;
+        display: block;
+        margin-bottom: 4px;
+      }
+      a.item .desc {
+        color: var(--muted);
+        font-size: 14px;
+        display: block;
+      }
+      footer {
+        margin-top: 40px;
+        color: var(--footer);
+        font-size: 13px;
+      }
+      footer p {
+        margin: 0;
+      }
+      @media (max-width: 520px) {
+        .wrap {
+          padding: 32px 18px 48px;
+        }
+        h1 {
+          font-size: 23px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Conteúdos públicos</h1>
+        <p class="sub">
+          Materiais de apoio publicados para compartilhar com clientes.
+        </p>
+      </header>
+      <div class="accent"></div>
+
+      <ul class="list">
+        <li>
+          <a class="item" href="pdlc/">
+            <span class="title">PDLC / AIDLC com o impacto do Devin</span>
+            <span class="desc"
+              >Diagrama interativo do fluxo completo, da demanda à produção,
+              com nível de autonomia, guardrails e métricas.</span
+            >
+          </a>
+        </li>
+      </ul>
+
+      <footer>
+        <p>Atualizado conforme novos conteúdos são publicados.</p>
+      </footer>
+    </div>
+  </body>
+</html>

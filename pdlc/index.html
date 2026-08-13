@@ -1,0 +1,1244 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDLC / AIDLC do cliente com o impacto do Devin</title>
+    <style>
+      :root {
+        --bg: #10121b;
+        --card: #1c2032;
+        --card-hover: #272d47;
+        --panel: #171b29;
+        --line: #262b40;
+        --text: #ffffff;
+        --body: #c9d1e1;
+        --muted: #9db6d1;
+        --footer: #7b849d;
+        --green: #4ec9b0;
+        --amber: #e3b341;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--body);
+        font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+      .wrap {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 32px 28px 48px;
+      }
+      header h1 {
+        color: var(--text);
+        font-size: 28px;
+        font-weight: 400;
+        margin: 0 0 6px;
+      }
+      header p.sub {
+        color: var(--muted);
+        margin: 0;
+        font-size: 14px;
+      }
+      .accent {
+        width: 60px;
+        height: 3px;
+        background: var(--green);
+        margin: 14px 0 22px;
+      }
+      .thesis {
+        border: 1px solid #2f5a52;
+        border-left: 3px solid var(--green);
+        background: #16241f;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 22px;
+      }
+      .thesis strong {
+        color: var(--text);
+      }
+      .thesis p {
+        margin: 0;
+        font-size: 14px;
+      }
+      .thesis p + p {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      button.action {
+        font: inherit;
+        font-size: 14px;
+        color: #10121b;
+        background: var(--green);
+        border: 0;
+        border-radius: 6px;
+        padding: 9px 18px;
+        cursor: pointer;
+      }
+      button.action.secondary {
+        background: transparent;
+        color: var(--body);
+        border: 1px solid #39405c;
+      }
+      button.action:focus-visible,
+      .metric:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 2px;
+      }
+      .status {
+        color: var(--footer);
+        font-size: 13px;
+      }
+      .hint {
+        color: var(--footer);
+        font-size: 12px;
+        margin: 0 0 18px;
+      }
+      .legend {
+        display: flex;
+        gap: 8px 18px;
+        flex-wrap: wrap;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 26px;
+        font-size: 12.5px;
+      }
+      .legend .lg-title {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .legend .lg-note {
+        color: var(--footer);
+        flex: 1 1 260px;
+      }
+      .chip {
+        display: inline-block;
+        font-size: 11px;
+        letter-spacing: 0.02em;
+        border-radius: 999px;
+        padding: 2px 9px;
+        border: 1px solid;
+        white-space: nowrap;
+      }
+      .chip.a1 {
+        color: #8fd3ff;
+        border-color: #35597a;
+        background: #16222e;
+      }
+      .chip.a2 {
+        color: #a6e3d0;
+        border-color: #2f5a52;
+        background: #15231f;
+      }
+      .chip.a3 {
+        color: #f0cf7a;
+        border-color: #6b5620;
+        background: #241f12;
+      }
+      section {
+        margin-bottom: 32px;
+      }
+      .band-title {
+        color: var(--text);
+        font-size: 17px;
+        margin: 0 0 4px;
+        font-weight: 600;
+      }
+      .band-title span {
+        font-weight: 400;
+        color: var(--footer);
+        font-size: 13px;
+        margin-left: 8px;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--accent-color, var(--green));
+        border-radius: 12px;
+        padding: 18px;
+      }
+      .card .step {
+        font-size: 11px;
+        color: var(--footer);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .card h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--accent-color, var(--green));
+        line-height: 1.25;
+      }
+      .card .labels {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .card .impact {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        border-left: 2px solid var(--accent-color, var(--green));
+        padding-left: 10px;
+      }
+      .card p.detail {
+        margin: 0;
+        font-size: 12.5px;
+      }
+      .card .badge-demo {
+        font-size: 11px;
+        color: var(--amber);
+        border: 1px dashed #6b5620;
+        border-radius: 999px;
+        padding: 3px 9px;
+      }
+      .card .block-title {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--footer);
+      }
+      .card .notes {
+        margin: 0;
+        padding-left: 16px;
+        font-size: 12.5px;
+      }
+      .card .notes li + li {
+        margin-top: 6px;
+      }
+      .metrics-title {
+        margin: 0;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--footer);
+      }
+      .metrics {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 12.5px;
+      }
+      .metrics li + li {
+        margin-top: 6px;
+      }
+      .metrics details {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 8px 12px;
+      }
+      .metrics summary {
+        cursor: pointer;
+        color: var(--text);
+      }
+      .metrics summary:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 2px;
+      }
+      .metrics details div {
+        margin-top: 6px;
+      }
+      .metrics b {
+        color: var(--text);
+      }
+      .stage-single {
+        margin-top: 14px;
+      }
+      .stage-single .card {
+        max-width: 940px;
+        margin: 0 auto;
+        padding: 28px 32px;
+        gap: 14px;
+      }
+      .stage-single .card h3 {
+        font-size: 30px;
+        font-weight: 400;
+      }
+      .stage-single .card .step {
+        font-size: 12px;
+      }
+      .stage-single .card .impact {
+        font-size: 16px;
+        padding-left: 12px;
+      }
+      .stage-single .card p.detail,
+      .stage-single .card .notes,
+      .stage-single .card .metrics {
+        font-size: 14px;
+      }
+      .toggle-view {
+        margin-bottom: 10px;
+      }
+      .wrap.focus header,
+      .wrap.focus .accent,
+      .wrap.focus .aside-block {
+        display: none;
+      }
+      .wrap.focus {
+        padding-top: 64px;
+      }
+      .wrap.focus .toggle-view {
+        position: fixed;
+        top: 14px;
+        right: 16px;
+        z-index: 5;
+        margin: 0;
+      }
+      .wrap.focus .stage-row {
+        min-height: 76vh;
+      }
+      .stage-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .stage-row .stage-single,
+      .stage-row .stage-grid {
+        flex: 1;
+        min-width: 0;
+        margin-top: 0;
+      }
+      .wrap:not(.focus) .stage-row .arrow-btn {
+        display: none;
+      }
+      .stage-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .stage-grid .card h3 {
+        font-size: 16px;
+      }
+      .nav {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .nav .counter {
+        color: var(--text);
+        font-size: 14px;
+        min-width: 130px;
+      }
+      button.arrow-btn {
+        font: inherit;
+        font-size: 16px;
+        line-height: 1;
+        color: var(--body);
+        background: transparent;
+        border: 1px solid #39405c;
+        border-radius: 6px;
+        padding: 8px 14px;
+        cursor: pointer;
+      }
+      button.arrow-btn:hover:enabled,
+      button.action.secondary:hover {
+        background: var(--card-hover);
+      }
+      button.arrow-btn:disabled {
+        color: #4a5170;
+        cursor: default;
+      }
+      button.arrow-btn:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 2px;
+      }
+      .dots {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      button.dot {
+        width: 10px;
+        height: 10px;
+        padding: 0;
+        border-radius: 50%;
+        border: 1px solid #4a5170;
+        background: transparent;
+        cursor: pointer;
+      }
+      button.dot[aria-current="true"] {
+        background: var(--green);
+        border-color: var(--green);
+      }
+      button.dot:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 2px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .panel h4 {
+        margin: 0 0 8px;
+        font-size: 13.5px;
+        color: var(--text);
+      }
+      .panel ul {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 12.5px;
+      }
+      .panel li {
+        margin-bottom: 6px;
+      }
+      .panel li:last-child {
+        margin-bottom: 0;
+      }
+      .panel .src {
+        display: block;
+        margin-top: 10px;
+        color: var(--footer);
+        font-size: 11.5px;
+      }
+      .warn {
+        border: 1px solid #6b5620;
+        border-left: 3px solid var(--amber);
+        background: #211d12;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-top: 14px;
+        font-size: 13px;
+      }
+      .warn strong {
+        color: var(--text);
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        margin-top: 34px;
+        padding-top: 16px;
+        color: var(--footer);
+        font-size: 12px;
+      }
+      footer p {
+        margin: 0 0 6px;
+      }
+      @media (max-width: 760px) {
+        body {
+          font-size: 14px;
+        }
+        .wrap {
+          padding: 20px 14px 36px;
+        }
+        .wrap.focus {
+          padding-top: 60px;
+        }
+        header h1 {
+          font-size: 22px;
+        }
+        .stage-single .card {
+          padding: 18px;
+        }
+        .stage-single .card h3 {
+          font-size: 22px;
+        }
+        .stage-single .card .impact {
+          font-size: 15px;
+        }
+        .stage-row {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .stage-row .stage-single,
+        .stage-row .stage-grid {
+          flex: 1 1 100%;
+          order: -1;
+        }
+        .stage-row .arrow-btn {
+          flex: 1 1 40%;
+          padding: 12px;
+        }
+        .wrap.focus .stage-row {
+          min-height: 0;
+        }
+        .stage-grid,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .legend {
+          margin-bottom: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="wrap">
+      <header>
+        <h1>PDLC / AIDLC do cliente com o impacto do Devin</h1>
+        <p class="sub">
+          Fluxo completo, da demanda à produção, com nível de autonomia,
+          guardrails de ambiente regulado e as métricas usadas para medir a
+          operação.
+        </p>
+      </header>
+      <div class="accent"></div>
+
+      <div class="thesis aside-block">
+        <p>
+          <strong>Tese:</strong> o Devin não substitui etapas nem pessoas do
+          SDLC/AIDLC. Ele reduz handoffs, reduz busca de contexto e reduz
+          trabalho mecânico ao longo do ciclo. As etapas, os donos e os gates
+          continuam existindo.
+        </p>
+        <p>
+          Cada card descreve o impacto nesses três termos e traz o nível de
+          autonomia da etapa. Autonomia é um dial configurável, não um
+          interruptor.
+        </p>
+      </div>
+
+      <div class="toggle-view">
+        <button class="action secondary" id="show-all" type="button">
+          Ver todos
+        </button>
+      </div>
+      <div class="controls aside-block">
+        <span class="status" id="status">
+          Navegue etapa por etapa com as setas ou o teclado.
+        </span>
+      </div>
+      <p class="hint aside-block">
+        Use as setas do teclado (← →) ou os botões para avançar entre as etapas.
+        Na lista de casos públicos, clique em um caso para ver escopo, baseline
+        e o que ele não significa.
+      </p>
+
+      <div class="legend aside-block">
+        <span class="lg-title">Níveis de autonomia:</span>
+        <span class="chip a1">assistivo</span>
+        <span class="chip a2">assíncrono com review</span>
+        <span class="chip a3">requer aprovação humana</span>
+        <span class="lg-note">
+          O nível é configurável por etapa e por equipe. No CLI, os modos de
+          permissão (Normal, Accept Edits, Smart, Bypass, Autonomous) definem o
+          que roda sem confirmação; regras de <code>deny</code> e
+          <code>ask</code> da organização prevalecem sobre o modo escolhido pelo
+          usuário. Ações de alto risco (instalar pacotes, <code>rm</code>,
+          <code>sudo</code>, operações de git que gravam, deploy público) sempre
+          pedem confirmação. Referência:
+          <code>cli/reference/permissions.mdx</code>.
+        </span>
+      </div>
+
+      <section>
+        <h2 class="band-title aside-block" id="stage-band-title">
+          Etapas do fluxo <span id="stage-band-sub"></span>
+        </h2>
+        <div class="stage-row">
+          <button
+            class="arrow-btn"
+            id="prev"
+            type="button"
+            aria-label="Etapa anterior"
+          >
+            ←
+          </button>
+          <div class="stage-single" id="stage-view" aria-live="polite"></div>
+          <button
+            class="arrow-btn"
+            id="next"
+            type="button"
+            aria-label="Próxima etapa"
+          >
+            →
+          </button>
+        </div>
+        <div class="nav aside-block">
+          <span class="counter" id="counter"></span>
+          <div class="dots" id="dots" role="tablist" aria-label="Etapas"></div>
+        </div>
+      </section>
+
+      <section class="aside-block">
+        <h2 class="band-title">
+          Guardrails <span>Ambiente regulado — transversal a todo o fluxo</span>
+        </h2>
+        <div class="grid" id="band-guardrails"></div>
+      </section>
+
+      <section class="aside-block">
+        <h2 class="band-title">
+          Governança do fluxo <span>Transversal a todo o fluxo</span>
+        </h2>
+        <div class="grid" id="band-gov"></div>
+      </section>
+
+      <section class="aside-block">
+        <h2 class="band-title">
+          Métricas de operação do agente
+          <span
+            >Agentic engineering ops — separadas das métricas de
+            throughput</span
+          >
+        </h2>
+        <div class="grid" id="band-ops"></div>
+        <div class="warn">
+          <strong>Throughput não é produtividade.</strong> Contagem de PRs
+          abertos, sessões e horas de agente medem atividade. O valor entregue é
+          medido por PR merged, acceptance rate e custo por PR merged (ACU por
+          PR merged). Meça resultados, não atividade — e compare sempre contra o
+          baseline do próprio time.
+        </div>
+      </section>
+
+      <footer class="aside-block">
+        <p>
+          Os números de casos públicos citados nos cards (Ramp, Gumroad, Litera,
+          Evinova, Fortune 50 Retailer) são de clientes e escopos específicos,
+          não deste cliente. Cada número traz baseline, escopo e fonte na lista
+          de casos públicos do card.
+        </p>
+        <p>
+          "Resolvido automaticamente" significa correção proposta em PR sujeito
+          a review e aos mesmos gates de CI/CD — não merge cego.
+        </p>
+        <p>
+          A média calibrada por etapa DESTE cliente deve vir de um piloto
+          medido, seguindo o framework Raw Metrics (sessões, PRs, ACU, usuários
+          ativos) → Derived Metrics (PR success rate, PRs por 1K ACU,
+          multiplicador vs. baseline de 4 PRs/dev/semana) → ROI Metrics
+          (economia líquida, payback, FTE equivalente). Nenhuma métrica aqui é
+          estimada ou inventada.
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      const COLORS = ["#4EC9B0", "#36C5F0", "#9EAEE9", "#C9A0E8", "#7ED1CC"];
+
+      const AUT = {
+        assistivo: ["assistivo", "a1"],
+        async: ["assíncrono com review", "a2"],
+        aprovacao: ["requer aprovação humana", "a3"],
+      };
+
+      const NOTES = {
+        ramp80: {
+          num: "80 PRs por semana",
+          scope:
+            "Cliente e escopo específicos: Ramp, times que adotaram sessões paralelas do Devin. Não é média de mercado nem deste cliente.",
+          baseline:
+            "Baseline de comparação: 4 PRs por desenvolvedor por semana, contando apenas dias úteis (seg–sex), conforme o framework de medição de piloto.",
+          caveat:
+            "São PRs abertos pelo agente, cada um sujeito a review humano e aos gates de CI/CD. PR aberto não é PR merged.",
+        },
+        gumroad: {
+          num: "1.583 PRs com 85% de merge rate",
+          scope:
+            "Cliente e escopo específicos: Gumroad, período divulgado publicamente pelo cliente.",
+          baseline:
+            "O denominador é PRs criados pelo Devin no período; o merge rate é a métrica derivada que importa (PR merged), não a contagem bruta.",
+          caveat:
+            "15% dos PRs não foram aceitos. O review humano é parte do processo, não exceção.",
+        },
+        vuln70: {
+          num: "cerca de 70% das vulnerabilidades",
+          scope:
+            "Cliente e escopo específicos: backlog de findings de ferramentas SAST/SCA já existentes (SonarQube, Fortify, Veracode) em repositórios selecionados.",
+          baseline:
+            "Baseline: fila de correção manual do próprio cliente antes do piloto, no mesmo conjunto de repositórios e severidades.",
+          caveat:
+            '"Resolvido automaticamente" = correção proposta em PR, sujeita a review e aos mesmos gates de segurança. Não é merge automático nem risco aceito sem humano.',
+        },
+        litera90: {
+          num: "90% menos tempo de regressão",
+          scope:
+            "Cliente e escopo específicos: Litera, suíte de regressão de produtos selecionados.",
+          baseline:
+            "Baseline: tempo de ciclo de regressão manual do próprio cliente antes do uso do Devin, na mesma suíte.",
+          caveat:
+            "Redução de tempo do ciclo de regressão, não redução de defeitos. Defect escape continua sendo medido separadamente.",
+        },
+        cov: {
+          num: "cobertura de testes 1,5 a 2x",
+          scope:
+            "Cliente e escopo específicos: repositórios em que a geração de testes foi aplicada como iniciativa dedicada.",
+          baseline:
+            "Baseline: cobertura de linha medida no mesmo repositório antes da iniciativa. O múltiplo depende de onde a cobertura começou (subir de 30% para 60% é mais fácil que de 70% para 90%).",
+          caveat:
+            "Cobertura é indicador de esforço de teste, não de qualidade. Precisa ser lida junto com defect escape e rollback rate.",
+        },
+        mult: {
+          num: "multiplicador de produtividade",
+          scope:
+            "Métrica derivada do framework de piloto, calculada por cliente. O número agregado divulgado publicamente é de 6 a 12x, dependendo do cliente e do tipo de tarefa.",
+          baseline:
+            "Baseline explícito: 4 PRs por desenvolvedor por semana, dias úteis, sessões de funcionários da Cognition filtradas, janela de datas validada com o cliente.",
+          caveat:
+            "É um multiplicador de throughput de PR, não de valor entregue. Sem acceptance rate e ACU por PR merged ao lado, o número não sustenta conclusão de produtividade.",
+        },
+        junior: {
+          num: "cerca de 7,8 minutos por tarefa",
+          scope:
+            "Cliente e escopo específicos: tarefas de manutenção de baixa complexidade, do tipo normalmente atribuído a desenvolvedor júnior.",
+          baseline:
+            "Baseline: tempo do mesmo tipo de tarefa no fluxo manual do cliente, incluindo espera por fila.",
+          caveat:
+            "Vale para a classe de tarefa medida. Não se extrapola para tarefas de arquitetura ou de domínio crítico.",
+        },
+        cycle17: {
+          num: "17% menos PR cycle time",
+          scope:
+            "Cliente e escopo específicos, repositórios com Devin Review ativo em todo PR.",
+          baseline:
+            "Baseline: PR cycle time do mesmo repositório antes da adoção, mesma definição de início (abertura do PR) e fim (merge).",
+          caveat:
+            "Cycle time é métrica de fluxo. Ganho de fluxo sem acceptance rate estável pode significar apenas mais PRs pequenos.",
+        },
+        bugs66: {
+          num: "66% dos bugs corrigidos autonomamente",
+          scope:
+            "Cliente e escopo específicos: bugs identificados em test loops nos repositórios do piloto.",
+          baseline:
+            "Baseline: proporção de bugs que exigia intervenção manual no mesmo fluxo antes do piloto.",
+          caveat:
+            '"Autonomamente" = o agente diagnosticou e propôs a correção em PR; o merge segue o review humano normal.',
+        },
+        hours10k: {
+          num: "mais de 10.000 horas por mês",
+          scope:
+            "Cliente e escopo específicos: Fortune 50 Retailer, estimativa do próprio cliente sobre o volume de trabalho endereçado.",
+          baseline:
+            "Baseline: estimativa de esforço manual equivalente feita pelo cliente para o mesmo escopo de tarefas.",
+          caveat:
+            "Horas economizadas é métrica derivada de estimativa, a mais frágil da lista. Use PR merged e ACU por PR merged para decisões.",
+        },
+      };
+
+      const bands = [
+        {
+          name: "1. Descoberta e concepção",
+          sub: "Da ideia ao refinamento técnico",
+          items: [
+            {
+              title: "Demanda / Ideia",
+              aut: "assistivo",
+              impact:
+                "Reduz busca de contexto: o problema chega estruturado ao time técnico",
+              detail:
+                "O playbook !brainstorm propõe 2 a 3 abordagens com trade-offs e gera o design doc a partir da descrição em linguagem natural.",
+              more: [
+                "O time de negócio descreve a demanda e recebe o problema estruturado, alternativas com prós e contras, riscos e perguntas em aberto. O papel do analista e do engenheiro sênior permanece: eles revisam e decidem.",
+                'Reduz handoffs porque a ida e volta "explica de novo o que você quer" acontece contra um documento, não em reuniões sucessivas.',
+              ],
+            },
+            {
+              title: "Validação / Refinamento técnico",
+              aut: "assistivo",
+              demo: "Demo: Risk Score",
+              impact:
+                "Reduz busca de contexto: a viabilidade é respondida contra a base de código real",
+              detail:
+                "Ask Devin e DeepWiki avaliam viabilidade na base de código que está em produção. A demo de Risk Score mostra o agente lendo o codebase real, recuperando contexto, identificando dependências e riscos e produzindo artefatos distintos por finalidade.",
+              more: [
+                "Na demo de Risk Score o agente percorre o repositório real, recupera o contexto necessário, mapeia dependências e pontos de acoplamento e classifica o risco da mudança. A saída é um conjunto de artefatos distintos (mapa de dependências, riscos, perguntas abertas), não um texto genérico.",
+                "Reduz trabalho mecânico de arqueologia de código e reduz a dependência da agenda de quem conhece o sistema. A decisão de seguir ou não continua humana.",
+                "Nível de autonomia: assistivo. O agente lê e explica; não altera código nesta etapa.",
+              ],
+            },
+            {
+              title: "Aprovação Comitê",
+              aut: "aprovacao",
+              impact:
+                "Reduz trabalho mecânico de estimativa para itens que talvez nunca sejam aprovados",
+              detail:
+                "Confidence Scores por ticket, sem iniciar sessão, permitem ordenar o backlog por confiança de execução.",
+              more: [
+                "Cada item recebe uma estimativa de confiança antes de qualquer investimento de sessão. O comitê decide com esforço e risco visíveis por item.",
+                'A decisão de priorização é e continua sendo humana: esta etapa é classificada como "requer aprovação humana" por definição.',
+              ],
+            },
+            {
+              title: "Iniciativa (Feature)",
+              aut: "assistivo",
+              impact:
+                "Reduz trabalho mecânico de reformatar o mesmo conteúdo para público executivo",
+              detail:
+                "Os playbooks !deck e !slides geram o material de decisão a partir dos documentos já produzidos.",
+              more: [
+                "O material executivo reaproveita o conteúdo técnico já validado, mantendo a mesma narrativa. Mudança de escopo vira nova versão sem refazer o deck à mão.",
+                "Reduz handoffs entre quem escreveu o documento técnico e quem monta a apresentação.",
+              ],
+            },
+            {
+              title: "Business Detail (PRD)",
+              aut: "assistivo",
+              impact:
+                "Reduz handoffs entre PO, arquitetura e desenvolvimento na escrita do PRD",
+              detail:
+                "O PRD Scoping produz PRD estruturado com cenários de uso, critérios de aceite e milestones, ancorado no que o código permite.",
+              more: [
+                "O PO revisa e ajusta em vez de escrever do zero, e as lacunas aparecem antes do desenvolvimento.",
+                "O documento continua sendo do PO: o agente produz a primeira versão, não a decisão de produto.",
+              ],
+            },
+            {
+              title: "Plano técnico",
+              aut: "assistivo",
+              impact:
+                "Reduz busca de contexto no mapeamento de arquitetura e dependências",
+              detail:
+                "DeepWiki mapeia arquitetura e acoplamentos e o Devin propõe plano técnico com passos, arquivos afetados e critérios de validação.",
+              more: [
+                "O refinamento técnico passa a ser uma revisão de plano, não uma descoberta de sistema. Quem conhece o sistema valida em vez de reconstituir o mapa de memória.",
+                "Reduz handoffs porque o plano já referencia arquivos e módulos concretos, o que diminui as rodadas de esclarecimento.",
+              ],
+            },
+          ],
+        },
+        {
+          name: "2. Entrega",
+          sub: "Do planejamento à produção",
+          items: [
+            {
+              title: "Sprint Planning",
+              aut: "assistivo",
+              impact:
+                "Reduz trabalho mecânico de escopar ticket por ticket na reunião",
+              detail:
+                "O Bulk-Plan Backlog entrega cada ticket com plano passo a passo e dependências sinalizadas, em paralelo.",
+              more: [
+                "Os tickets chegam escopados à reunião, que passa a ser de decisão sobre prioridade em vez de descoberta de escopo.",
+                "Reduz handoffs entre planning e desenvolvimento: o plano que o time aprovou é o mesmo que a sessão executa.",
+              ],
+            },
+            {
+              title: "Desenvolvimento",
+              aut: "async",
+              impact:
+                "Reduz trabalho mecânico da primeira versão e reduz espera por ambiente",
+              detail:
+                "Sessões paralelas, cada uma na própria VM com o repositório configurado.",
+              metrics: ["ramp80", "hours10k", "gumroad"],
+              more: [
+                "Cada sessão roda em VM própria, sem disputa de ambiente entre tarefas. O engenheiro deixa de escrever a primeira versão e passa a revisar e direcionar.",
+                "Nível de autonomia: assíncrono com review. O agente trabalha sem supervisão contínua, mas a entrega é um PR que passa pelo review humano e pelos gates de CI/CD existentes.",
+                "Nenhum destes números é deste cliente. Cada um traz baseline, escopo e fonte na lista de casos públicos.",
+              ],
+            },
+            {
+              title: "QA e Review",
+              aut: "async",
+              impact:
+                "Reduz espera por revisor e reduz trabalho mecânico de vaivém de correções",
+              detail:
+                "Devin Review em todo PR mais test loops: o agente roda os testes, lê a falha e corrige até passar.",
+              metrics: ["litera90", "cov", "bugs66"],
+              more: [
+                "Todo PR recebe revisão automática antes do revisor humano, incluindo varredura de segurança. O revisor humano continua no fluxo e é ele quem aprova.",
+                "Reduz handoffs entre dev, QA e revisor, porque a evidência de teste acompanha o PR.",
+              ],
+            },
+            {
+              title: "Homologação (PO)",
+              aut: "aprovacao",
+              impact:
+                "Reduz espera por janela de teste manual e reduz busca de contexto do PO",
+              detail:
+                "O Devin sobe o app no browser, testa a UI e entrega vídeo anotado junto ao PR.",
+              metrics: ["cycle17"],
+              more: [
+                "O PO recebe a evidência de funcionamento junto com o PR e valida sem agendar janela de teste. O aceite continua sendo dele.",
+                "Testar o app em ambiente exposto exige aprovação humana explícita (ação de auditoria approve_test_app), com clique de um humano.",
+              ],
+            },
+            {
+              title: "Deploy",
+              aut: "aprovacao",
+              impact:
+                "Reduz fila de correção manual de findings de segurança, sem trocar o pipeline",
+              detail:
+                "Usa o CI/CD existente e propõe correção para findings de SonarQube, Fortify e Veracode no mesmo ciclo.",
+              metrics: ["vuln70"],
+              more: [
+                "Não há troca de pipeline: o Devin entrega PR no fluxo de CI/CD que já existe e respeita os mesmos gates.",
+                "Deploy exige aprovação humana explícita (ação de auditoria approve_deploy). Deploy que expõe algo publicamente sempre pede aprovação.",
+              ],
+            },
+            {
+              title: "Produção / DoD",
+              aut: "async",
+              impact:
+                "Reduz trabalho mecânico de triagem recorrente e de relatórios",
+              detail:
+                "Sessões agendadas fazem triagem de erros (Sentry) e relatórios recorrentes, com causa provável e correção proposta.",
+              metrics: ["junior"],
+              more: [
+                "Erros novos são triados sem consumir o plantão do time; tarefas repetitivas saem da fila e passam a rodar de forma agendada.",
+                "Correções entram como PR sujeito a review. O plantão decide o que promover.",
+              ],
+            },
+          ],
+        },
+      ];
+
+      const guardrails = [
+        {
+          title: "IAM / least privilege",
+          detail:
+            "RBAC com funções customizadas por nível (conta, organização), SSO e provisionamento SCIM, mapeamento de grupos do IdP, secrets escopados por tier (organização, pessoal, repositório, sessão) e acesso do agente restrito aos repositórios concedidos.",
+          more: [
+            "Verificável: funções customizadas e funções de nível de conta (enterprise/security-access/custom-roles), SCIM com desprovisionamento e revogação automática de tokens, grupos do IdP mapeados para tiers de uso.",
+            "Segredos de organização são visíveis apenas para admins; segredos pessoais não são compartilhados com a organização; segredos de repositório ficam no ambiente do repositório.",
+          ],
+        },
+        {
+          title: "Policy gates",
+          detail:
+            'AI Guardrails analisam mensagens de entrada (inicial, follow-up e comentários de PR) e aplicam a ação configurada: log_only, warn_user, block_message ou kill_session. Política de PAT com modo "aprovação necessária" e expiração obrigatória.',
+          more: [
+            "Verificável: guardrails configurados em Settings > Guardrails, com ação por regra e link para a sessão de origem. Casos de uso previstos: prompt injection, exfiltração de dados, conformidade com política interna.",
+            "PATs: admin aprova cada solicitação, expiração máxima configurável (365 dias por padrão), inventário e revogação em massa, revogação automática na saída do usuário.",
+          ],
+        },
+        {
+          title: "Human approval",
+          detail:
+            "Ações sensíveis exigem clique humano: approve_deploy para deploy e approve_test_app para testar o app. Deploy público sempre pede aprovação. Regras deny e ask da organização prevalecem sobre qualquer modo de permissão do usuário.",
+          more: [
+            "Verificável: as ações approve_deploy e approve_test_app existem como interações de usuário e como ações de log de auditoria; a sessão fica suspensa até a aprovação.",
+            "No CLI, categorias de alto risco nunca são auto-aprovadas no modo Smart (instalação de pacotes, git que grava, rm, sudo, operações destrutivas em CLIs de nuvem, leitura/escrita de dotenv e material de chave).",
+          ],
+        },
+        {
+          title: "Audit trail + security validation",
+          detail:
+            "Toda ação relevante entra em AuditLogs, incluindo APPROVE_DEPLOY, APPROVE_TEST_APP, PERMISSION_RESPONSE e AI_GUARDRAIL_VIOLATION. Varredura de segurança automática em todo PR, com achado aprovado (resolvido) ou escalado para revisão humana.",
+          more: [
+            "Verificável: log de auditoria exposto por API (enterprise audit logs) com tipos de ação nomeados; violações de guardrail também recuperáveis pela API de guardrail violations.",
+            "Devin Review executa varredura de segurança por PR e apresenta os achados em seção dedicada (Bugs, Flags, Security), cada um marcável como resolvido ou levado ao revisor humano. O veredito final é do revisor.",
+          ],
+        },
+      ];
+
+      const governance = [
+        {
+          title: "CAB / Mudanças",
+          detail:
+            "Reduz trabalho mecânico de montar pacote de evidência depois da mudança.",
+          more: [
+            "Cada mudança carrega ticket de origem, plano executado, testes e revisão, ligados ao PR. O pacote de evidência é o próprio registro do trabalho.",
+            "Aplicável a contextos regulados (por exemplo GxP e 21 CFR Part 11) porque o audit trail é preservado por construção.",
+          ],
+        },
+        {
+          title: "Métricas e calibração",
+          detail:
+            "Reduz trabalho mecânico de consolidação manual por sprint e é o que calibra o ganho real deste cliente.",
+          more: [
+            "Session Insights por time e por tipo de tarefa, cruzado com os indicadores de entrega que o cliente já acompanha.",
+            "Framework: Raw Metrics (sessões, PRs, ACU, usuários ativos) → Derived Metrics (PR success rate, PRs por 1K ACU, multiplicador vs. 4 PRs/dev/semana) → ROI Metrics (economia líquida, payback, FTE equivalente).",
+          ],
+        },
+        {
+          title: "Gestão de dependências",
+          detail:
+            "Reduz trabalho mecânico de upgrades e remoção de feature flags antigas.",
+          more: [
+            "Atualizações de bibliotecas, limpeza de flags e correções de vulnerabilidade em dependências rodam como trabalho recorrente em background, com PR e testes.",
+            "O backlog técnico deixa de competir por capacidade com a entrega de produto. O merge continua sujeito ao review normal.",
+          ],
+        },
+      ];
+
+      const opsMetrics = [
+        {
+          title: "Execução da tarefa",
+          items: [
+            "Task success / completion rate: proporção de tarefas entregues como pedido (completa, parcial, não concluída, abortada pelo usuário, bloqueada por fator externo).",
+            "Human intervention rate: proporção de sessões em que um humano precisou intervir para desbloquear ou corrigir o rumo.",
+            "Escalation rate por categoria de bloqueio: credentials, permissions, environment, missing_info. É o indicador que aponta o que consertar no ambiente e nos acessos, não no agente.",
+          ],
+          src: "Categorias de bloqueio conforme a taxonomia de features de sessão (credentials, permissions, environment, missing_info).",
+        },
+        {
+          title: "Qualidade do resultado",
+          items: [
+            "PR acceptance rate: PRs merged sobre PRs abertos pelo agente. Baseline observado de referência em torno de 70%, subindo para 80–90% conforme o time ajusta prompts, playbooks e configuração de ambiente.",
+            "Defect escape: defeitos que passaram pelo review e pelos testes e chegaram a produção.",
+            "Rollback rate: proporção de mudanças revertidas após deploy.",
+          ],
+          src: "Acceptance rate deve ser lido junto com defect escape: subir acceptance derrubando rigor de review é regressão, não ganho.",
+        },
+        {
+          title: "Custo e eficiência da operação",
+          items: [
+            "Cost / time por tarefa: ACU consumido e tempo de parede por tarefa entregue.",
+            "ACU por PR merged: a métrica de eficiência que importa, porque usa o resultado no denominador.",
+            "PRs por 1K ACU, para comparar times e tipos de tarefa dentro do próprio cliente.",
+          ],
+          src: "Comparações válidas são internas ao cliente e no mesmo tipo de tarefa. Tipos de tarefa diferentes têm custo por resultado diferente.",
+        },
+        {
+          title: "Como ler este painel",
+          items: [
+            "Estas métricas medem a operação de engenharia agentic: se o agente conclui tarefas, com quanta intervenção humana, com que taxa de aceitação e a que custo por resultado.",
+            "Elas não são métricas de velocidade. Volume de sessões e de PRs abertos entra em Raw Metrics e serve para dimensionar uso, não para declarar produtividade.",
+            "Sem baseline do próprio time, nenhuma delas sustenta conclusão. O baseline vem do piloto medido.",
+          ],
+          src: "Meça resultados, não atividade.",
+        },
+      ];
+
+      function metricItem(key) {
+        const note = NOTES[key];
+        const li = document.createElement("li");
+        const details = document.createElement("details");
+        const summary = document.createElement("summary");
+        summary.textContent = note.num;
+        details.appendChild(summary);
+        [
+          ["Cliente / escopo", note.scope],
+          ["Baseline", note.baseline],
+          ["O que não significa", note.caveat],
+        ].forEach(([label, text]) => {
+          const div = document.createElement("div");
+          const b = document.createElement("b");
+          b.textContent = label + ": ";
+          div.append(b, document.createTextNode(text));
+          details.appendChild(div);
+        });
+        li.appendChild(details);
+        return li;
+      }
+
+      function buildCard(item, opts) {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.style.setProperty("--accent-color", opts.color);
+
+        const step = document.createElement("div");
+        step.className = "step";
+        step.textContent = opts.stepLabel;
+
+        const h = document.createElement("h3");
+        h.textContent = item.title;
+
+        card.append(step, h);
+
+        if (item.aut || item.demo) {
+          const labels = document.createElement("div");
+          labels.className = "labels";
+          if (item.aut) {
+            const [label, cls] = AUT[item.aut];
+            const chip = document.createElement("span");
+            chip.className = "chip " + cls;
+            chip.textContent = label;
+            labels.appendChild(chip);
+          }
+          if (item.demo) {
+            const badge = document.createElement("span");
+            badge.className = "badge-demo";
+            badge.textContent = item.demo;
+            labels.appendChild(badge);
+          }
+          card.appendChild(labels);
+        }
+
+        if (item.impact) {
+          const imp = document.createElement("p");
+          imp.className = "impact";
+          imp.textContent = item.impact;
+          card.appendChild(imp);
+        }
+
+        const p = document.createElement("p");
+        p.className = "detail";
+        p.textContent = item.detail;
+        card.appendChild(p);
+
+        const notes = document.createElement("ul");
+        notes.className = "notes";
+        item.more.forEach((text) => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          notes.appendChild(li);
+        });
+        card.appendChild(notes);
+
+        if (item.metrics && item.metrics.length) {
+          const title = document.createElement("p");
+          title.className = "metrics-title";
+          title.textContent = "Casos públicos (clique para ver baseline)";
+          const list = document.createElement("ul");
+          list.className = "metrics";
+          item.metrics.forEach((key) => list.appendChild(metricItem(key)));
+          card.append(title, list);
+        }
+
+        return card;
+      }
+
+      const stages = [];
+
+      bands.forEach((band) => {
+        band.items.forEach((item) => {
+          stages.push({
+            item,
+            band,
+            color: COLORS[stages.length % COLORS.length],
+          });
+        });
+      });
+
+      const guardrailContainer = document.getElementById("band-guardrails");
+      guardrails.forEach((item, i) => {
+        guardrailContainer.appendChild(
+          buildCard(item, {
+            color: COLORS[i % COLORS.length],
+            stepLabel: "Guardrail",
+          }),
+        );
+      });
+
+      const govContainer = document.getElementById("band-gov");
+      governance.forEach((item, i) => {
+        govContainer.appendChild(
+          buildCard(item, {
+            color: COLORS[i % COLORS.length],
+            stepLabel: "Transversal",
+          }),
+        );
+      });
+
+      const opsContainer = document.getElementById("band-ops");
+      opsMetrics.forEach((panel) => {
+        const box = document.createElement("div");
+        box.className = "panel";
+        const h = document.createElement("h4");
+        h.textContent = panel.title;
+        const ul = document.createElement("ul");
+        panel.items.forEach((text) => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          ul.appendChild(li);
+        });
+        const src = document.createElement("span");
+        src.className = "src";
+        src.textContent = panel.src;
+        box.append(h, ul, src);
+        opsContainer.appendChild(box);
+      });
+
+      const stageView = document.getElementById("stage-view");
+      const bandSub = document.getElementById("stage-band-sub");
+      const counter = document.getElementById("counter");
+      const dots = document.getElementById("dots");
+      const prevBtn = document.getElementById("prev");
+      const nextBtn = document.getElementById("next");
+      const showAllBtn = document.getElementById("show-all");
+      const wrap = document.getElementById("wrap");
+      const status = document.getElementById("status");
+      let index = 0;
+      let showAll = false;
+
+      stages.forEach((stage, i) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "dot";
+        dot.setAttribute("aria-label", `Etapa ${i + 1}: ${stage.item.title}`);
+        dot.addEventListener("click", () => {
+          showAll = false;
+          index = i;
+          render();
+        });
+        dots.appendChild(dot);
+      });
+
+      function stageCard(i) {
+        return buildCard(stages[i].item, {
+          color: stages[i].color,
+          stepLabel: `Etapa ${i + 1} de ${stages.length} · ${stages[i].band.name}`,
+        });
+      }
+
+      function render() {
+        stageView.innerHTML = "";
+        stageView.className = showAll ? "stage-grid" : "stage-single";
+        if (showAll) {
+          stages.forEach((_, i) => stageView.appendChild(stageCard(i)));
+        } else {
+          stageView.appendChild(stageCard(index));
+        }
+
+        const dotList = dots.querySelectorAll(".dot");
+        dotList.forEach((dot, i) => {
+          dot.setAttribute("aria-current", String(!showAll && i === index));
+        });
+
+        prevBtn.disabled = showAll || index === 0;
+        nextBtn.disabled = showAll || index === stages.length - 1;
+        wrap.classList.toggle("focus", !showAll);
+        showAllBtn.textContent = showAll ? "Ver uma etapa" : "Ver todos";
+        showAllBtn.setAttribute("aria-pressed", String(showAll));
+
+        if (showAll) {
+          bandSub.textContent = "Visão geral das 12 etapas";
+          counter.textContent = `${stages.length} etapas`;
+          status.textContent =
+            "Visão geral. Use Ver uma etapa para voltar à navegação card por card.";
+        } else {
+          const stage = stages[index];
+          bandSub.textContent = `${stage.band.name}: ${stage.band.sub}`;
+          counter.textContent = `Etapa ${index + 1} de ${stages.length}`;
+          status.textContent = stage.item.title;
+        }
+      }
+
+      function go(delta) {
+        if (showAll) return;
+        const target = index + delta;
+        if (target < 0 || target >= stages.length) return;
+        index = target;
+        render();
+      }
+
+      prevBtn.addEventListener("click", () => go(-1));
+      nextBtn.addEventListener("click", () => go(1));
+      showAllBtn.addEventListener("click", () => {
+        showAll = !showAll;
+        render();
+      });
+
+      render();
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "PageDown") go(1);
+        if (e.key === "ArrowLeft" || e.key === "PageUp") go(-1);
+      });
+    </script>
+  </body>
+</html>
