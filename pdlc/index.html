@@ -3,7 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
     <title>PDLC / AIDLC do cliente com o impacto do Devin</title>
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        const requested = params.get("theme");
+        const stored = localStorage.getItem("pdlc-theme");
+        const theme =
+          requested === "light" || requested === "dark"
+            ? requested
+            : stored === "light"
+              ? "light"
+              : "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
     <style>
       :root {
         --bg: #10121b;
@@ -17,6 +32,52 @@
         --footer: #7b849d;
         --green: #4ec9b0;
         --amber: #e3b341;
+        --button-text: #10121b;
+        --thesis-bg: #16241f;
+        --thesis-border: #2f5a52;
+        --warn-bg: #211d12;
+        --warn-border: #6b5620;
+        --button-border: #39405c;
+        --disabled: #4a5170;
+        --chip-a1-text: #8fd3ff;
+        --chip-a1-border: #35597a;
+        --chip-a1-bg: #16222e;
+        --chip-a2-text: #a6e3d0;
+        --chip-a2-border: #2f5a52;
+        --chip-a2-bg: #15231f;
+        --chip-a3-text: #f0cf7a;
+        --chip-a3-border: #6b5620;
+        --chip-a3-bg: #241f12;
+      }
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --bg: #ffffff;
+        --card: #ffffff;
+        --card-hover: #f2f5fa;
+        --panel: #f7f9fc;
+        --line: #e2e7f0;
+        --text: #101426;
+        --body: #3c4557;
+        --muted: #566276;
+        --footer: #6b7484;
+        --green: #0f8f78;
+        --amber: #9a6b06;
+        --button-text: #ffffff;
+        --thesis-bg: #f0faf7;
+        --thesis-border: #bfe3da;
+        --warn-bg: #fdf7e8;
+        --warn-border: #e3cd8d;
+        --button-border: #b8c2d4;
+        --disabled: #9ba6b8;
+        --chip-a1-text: #1d5f8a;
+        --chip-a1-border: #bcd9ee;
+        --chip-a1-bg: #eaf4fb;
+        --chip-a2-text: #16705f;
+        --chip-a2-border: #b6dfd4;
+        --chip-a2-bg: #e9f7f3;
+        --chip-a3-text: #7a5a12;
+        --chip-a3-border: #e2cf99;
+        --chip-a3-bg: #fdf6e5;
       }
       * {
         box-sizing: border-box;
@@ -52,9 +113,9 @@
         margin: 14px 0 22px;
       }
       .thesis {
-        border: 1px solid #2f5a52;
+        border: 1px solid var(--thesis-border);
         border-left: 3px solid var(--green);
-        background: #16241f;
+        background: var(--thesis-bg);
         border-radius: 10px;
         padding: 14px 16px;
         margin-bottom: 22px;
@@ -81,7 +142,7 @@
       button.action {
         font: inherit;
         font-size: 14px;
-        color: #10121b;
+        color: var(--button-text);
         background: var(--green);
         border: 0;
         border-radius: 6px;
@@ -91,7 +152,7 @@
       button.action.secondary {
         background: transparent;
         color: var(--body);
-        border: 1px solid #39405c;
+        border: 1px solid var(--button-border);
       }
       button.action:focus-visible,
       .metric:focus-visible {
@@ -136,19 +197,19 @@
         white-space: nowrap;
       }
       .chip.a1 {
-        color: #8fd3ff;
-        border-color: #35597a;
-        background: #16222e;
+        color: var(--chip-a1-text);
+        border-color: var(--chip-a1-border);
+        background: var(--chip-a1-bg);
       }
       .chip.a2 {
-        color: #a6e3d0;
-        border-color: #2f5a52;
-        background: #15231f;
+        color: var(--chip-a2-text);
+        border-color: var(--chip-a2-border);
+        background: var(--chip-a2-bg);
       }
       .chip.a3 {
-        color: #f0cf7a;
-        border-color: #6b5620;
-        background: #241f12;
+        color: var(--chip-a3-text);
+        border-color: var(--chip-a3-border);
+        background: var(--chip-a3-bg);
       }
       section {
         margin-bottom: 32px;
@@ -209,7 +270,7 @@
       .card .badge-demo {
         font-size: 11px;
         color: var(--amber);
-        border: 1px dashed #6b5620;
+        border: 1px dashed var(--warn-border);
         border-radius: 999px;
         padding: 3px 9px;
       }
@@ -351,7 +412,7 @@
         line-height: 1;
         color: var(--body);
         background: transparent;
-        border: 1px solid #39405c;
+        border: 1px solid var(--button-border);
         border-radius: 6px;
         padding: 8px 14px;
         cursor: pointer;
@@ -361,7 +422,7 @@
         background: var(--card-hover);
       }
       button.arrow-btn:disabled {
-        color: #4a5170;
+        color: var(--disabled);
         cursor: default;
       }
       button.arrow-btn:focus-visible {
@@ -378,7 +439,7 @@
         height: 10px;
         padding: 0;
         border-radius: 50%;
-        border: 1px solid #4a5170;
+        border: 1px solid var(--disabled);
         background: transparent;
         cursor: pointer;
       }
@@ -425,9 +486,9 @@
         font-size: 11.5px;
       }
       .warn {
-        border: 1px solid #6b5620;
+        border: 1px solid var(--warn-border);
         border-left: 3px solid var(--amber);
-        background: #211d12;
+        background: var(--warn-bg);
         border-radius: 10px;
         padding: 12px 14px;
         margin-top: 14px;
@@ -492,6 +553,14 @@
           margin-bottom: 20px;
         }
       }
+      .theme-toggle {
+        margin-left: auto;
+      }
+      @media (max-width: 760px) {
+        .theme-toggle {
+          margin-left: 0;
+        }
+      }
     </style>
   </head>
   <body>
@@ -523,6 +592,14 @@
       <div class="toggle-view">
         <button class="action secondary" id="show-all" type="button">
           Ver todos
+        </button>
+        <button
+          class="action secondary theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-pressed="false"
+        >
+          Tema claro
         </button>
       </div>
       <div class="controls aside-block">
@@ -637,7 +714,20 @@
     </div>
 
     <script>
-      const COLORS = ["#4EC9B0", "#36C5F0", "#9EAEE9", "#C9A0E8", "#7ED1CC"];
+      const COLORS_DARK = [
+        "#4EC9B0",
+        "#36C5F0",
+        "#9EAEE9",
+        "#C9A0E8",
+        "#7ED1CC",
+      ];
+      const COLORS_LIGHT = [
+        "#0F8F78",
+        "#1183B8",
+        "#5566C4",
+        "#8B4FC0",
+        "#2E8C86",
+      ];
 
       const AUT = {
         assistivo: ["assistivo", "a1"],
@@ -1109,31 +1199,12 @@
           stages.push({
             item,
             band,
-            color: COLORS[stages.length % COLORS.length],
           });
         });
       });
 
       const guardrailContainer = document.getElementById("band-guardrails");
-      guardrails.forEach((item, i) => {
-        guardrailContainer.appendChild(
-          buildCard(item, {
-            color: COLORS[i % COLORS.length],
-            stepLabel: "Guardrail",
-          }),
-        );
-      });
-
       const govContainer = document.getElementById("band-gov");
-      governance.forEach((item, i) => {
-        govContainer.appendChild(
-          buildCard(item, {
-            color: COLORS[i % COLORS.length],
-            stepLabel: "Transversal",
-          }),
-        );
-      });
-
       const opsContainer = document.getElementById("band-ops");
       opsMetrics.forEach((panel) => {
         const box = document.createElement("div");
@@ -1160,10 +1231,41 @@
       const prevBtn = document.getElementById("prev");
       const nextBtn = document.getElementById("next");
       const showAllBtn = document.getElementById("show-all");
+      const themeToggle = document.getElementById("theme-toggle");
       const wrap = document.getElementById("wrap");
       const status = document.getElementById("status");
       let index = 0;
       let showAll = false;
+
+      function isLightTheme() {
+        return document.documentElement.dataset.theme === "light";
+      }
+
+      function activeColors() {
+        return isLightTheme() ? COLORS_LIGHT : COLORS_DARK;
+      }
+
+      function renderAccentBands() {
+        const colors = activeColors();
+        guardrailContainer.innerHTML = "";
+        guardrails.forEach((item, i) => {
+          guardrailContainer.appendChild(
+            buildCard(item, {
+              color: colors[i % colors.length],
+              stepLabel: "Guardrail",
+            }),
+          );
+        });
+        govContainer.innerHTML = "";
+        governance.forEach((item, i) => {
+          govContainer.appendChild(
+            buildCard(item, {
+              color: colors[i % colors.length],
+              stepLabel: "Transversal",
+            }),
+          );
+        });
+      }
 
       stages.forEach((stage, i) => {
         const dot = document.createElement("button");
@@ -1180,7 +1282,7 @@
 
       function stageCard(i) {
         return buildCard(stages[i].item, {
-          color: stages[i].color,
+          color: activeColors()[i % activeColors().length],
           stepLabel: `Etapa ${i + 1} de ${stages.length} · ${stages[i].band.name}`,
         });
       }
@@ -1226,6 +1328,20 @@
         render();
       }
 
+      function updateThemeToggle() {
+        const light = isLightTheme();
+        themeToggle.textContent = light ? "Tema escuro" : "Tema claro";
+        themeToggle.setAttribute("aria-pressed", String(light));
+      }
+
+      function setTheme(theme, persist = true) {
+        document.documentElement.dataset.theme = theme;
+        if (persist) localStorage.setItem("pdlc-theme", theme);
+        updateThemeToggle();
+        renderAccentBands();
+        render();
+      }
+
       prevBtn.addEventListener("click", () => go(-1));
       nextBtn.addEventListener("click", () => go(1));
       showAllBtn.addEventListener("click", () => {
@@ -1233,6 +1349,12 @@
         render();
       });
 
+      themeToggle.addEventListener("click", () => {
+        setTheme(isLightTheme() ? "dark" : "light");
+      });
+
+      renderAccentBands();
+      updateThemeToggle();
       render();
 
       document.addEventListener("keydown", (e) => {
