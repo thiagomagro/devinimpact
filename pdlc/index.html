@@ -3,7 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
     <title>PDLC / AIDLC do cliente com o impacto do Devin</title>
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        const requested = params.get("theme");
+        const stored = localStorage.getItem("pdlc-theme");
+        const theme =
+          requested === "light" || requested === "dark"
+            ? requested
+            : stored === "light"
+              ? "light"
+              : "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
     <style>
       :root {
         --bg: #10121b;
@@ -17,6 +32,52 @@
         --footer: #7b849d;
         --green: #4ec9b0;
         --amber: #e3b341;
+        --button-text: #10121b;
+        --thesis-bg: #16241f;
+        --thesis-border: #2f5a52;
+        --warn-bg: #211d12;
+        --warn-border: #6b5620;
+        --button-border: #39405c;
+        --disabled: #4a5170;
+        --chip-a1-text: #8fd3ff;
+        --chip-a1-border: #35597a;
+        --chip-a1-bg: #16222e;
+        --chip-a2-text: #a6e3d0;
+        --chip-a2-border: #2f5a52;
+        --chip-a2-bg: #15231f;
+        --chip-a3-text: #f0cf7a;
+        --chip-a3-border: #6b5620;
+        --chip-a3-bg: #241f12;
+      }
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --bg: #ffffff;
+        --card: #ffffff;
+        --card-hover: #f2f5fa;
+        --panel: #f7f9fc;
+        --line: #e2e7f0;
+        --text: #101426;
+        --body: #3c4557;
+        --muted: #566276;
+        --footer: #6b7484;
+        --green: #0f8f78;
+        --amber: #9a6b06;
+        --button-text: #ffffff;
+        --thesis-bg: #f0faf7;
+        --thesis-border: #bfe3da;
+        --warn-bg: #fdf7e8;
+        --warn-border: #e3cd8d;
+        --button-border: #b8c2d4;
+        --disabled: #9ba6b8;
+        --chip-a1-text: #1d5f8a;
+        --chip-a1-border: #bcd9ee;
+        --chip-a1-bg: #eaf4fb;
+        --chip-a2-text: #16705f;
+        --chip-a2-border: #b6dfd4;
+        --chip-a2-bg: #e9f7f3;
+        --chip-a3-text: #7a5a12;
+        --chip-a3-border: #e2cf99;
+        --chip-a3-bg: #fdf6e5;
       }
       * {
         box-sizing: border-box;
@@ -26,7 +87,7 @@
         background: var(--bg);
         color: var(--body);
         font-family: Inter, "Helvetica Neue", Arial, sans-serif;
-        font-size: 15px;
+        font-size: 16.5px;
         line-height: 1.5;
       }
       .wrap {
@@ -36,14 +97,14 @@
       }
       header h1 {
         color: var(--text);
-        font-size: 28px;
+        font-size: 31px;
         font-weight: 400;
         margin: 0 0 6px;
       }
       header p.sub {
         color: var(--muted);
         margin: 0;
-        font-size: 14px;
+        font-size: 15.5px;
       }
       .accent {
         width: 60px;
@@ -52,9 +113,9 @@
         margin: 14px 0 22px;
       }
       .thesis {
-        border: 1px solid #2f5a52;
+        border: 1px solid var(--thesis-border);
         border-left: 3px solid var(--green);
-        background: #16241f;
+        background: var(--thesis-bg);
         border-radius: 10px;
         padding: 14px 16px;
         margin-bottom: 22px;
@@ -64,12 +125,12 @@
       }
       .thesis p {
         margin: 0;
-        font-size: 14px;
+        font-size: 15.5px;
       }
       .thesis p + p {
         margin-top: 8px;
         color: var(--muted);
-        font-size: 13px;
+        font-size: 14.3px;
       }
       .controls {
         display: flex;
@@ -80,8 +141,8 @@
       }
       button.action {
         font: inherit;
-        font-size: 14px;
-        color: #10121b;
+        font-size: 15.5px;
+        color: var(--button-text);
         background: var(--green);
         border: 0;
         border-radius: 6px;
@@ -91,7 +152,7 @@
       button.action.secondary {
         background: transparent;
         color: var(--body);
-        border: 1px solid #39405c;
+        border: 1px solid var(--button-border);
       }
       button.action:focus-visible,
       .metric:focus-visible {
@@ -100,11 +161,11 @@
       }
       .status {
         color: var(--footer);
-        font-size: 13px;
+        font-size: 14.3px;
       }
       .hint {
         color: var(--footer);
-        font-size: 12px;
+        font-size: 13.2px;
         margin: 0 0 18px;
       }
       .legend {
@@ -116,7 +177,7 @@
         border-radius: 10px;
         padding: 12px 14px;
         margin-bottom: 26px;
-        font-size: 12.5px;
+        font-size: 13.75px;
       }
       .legend .lg-title {
         color: var(--text);
@@ -128,7 +189,7 @@
       }
       .chip {
         display: inline-block;
-        font-size: 11px;
+        font-size: 12.1px;
         letter-spacing: 0.02em;
         border-radius: 999px;
         padding: 2px 9px;
@@ -136,33 +197,33 @@
         white-space: nowrap;
       }
       .chip.a1 {
-        color: #8fd3ff;
-        border-color: #35597a;
-        background: #16222e;
+        color: var(--chip-a1-text);
+        border-color: var(--chip-a1-border);
+        background: var(--chip-a1-bg);
       }
       .chip.a2 {
-        color: #a6e3d0;
-        border-color: #2f5a52;
-        background: #15231f;
+        color: var(--chip-a2-text);
+        border-color: var(--chip-a2-border);
+        background: var(--chip-a2-bg);
       }
       .chip.a3 {
-        color: #f0cf7a;
-        border-color: #6b5620;
-        background: #241f12;
+        color: var(--chip-a3-text);
+        border-color: var(--chip-a3-border);
+        background: var(--chip-a3-bg);
       }
       section {
         margin-bottom: 32px;
       }
       .band-title {
         color: var(--text);
-        font-size: 17px;
+        font-size: 19px;
         margin: 0 0 4px;
         font-weight: 600;
       }
       .band-title span {
         font-weight: 400;
         color: var(--footer);
-        font-size: 13px;
+        font-size: 14.3px;
         margin-left: 8px;
       }
       .card {
@@ -176,14 +237,14 @@
         padding: 18px;
       }
       .card .step {
-        font-size: 11px;
+        font-size: 12.1px;
         color: var(--footer);
         letter-spacing: 0.06em;
         text-transform: uppercase;
       }
       .card h3 {
         margin: 0;
-        font-size: 17px;
+        font-size: 19px;
         font-weight: 700;
         color: var(--accent-color, var(--green));
         line-height: 1.25;
@@ -194,27 +255,19 @@
         flex-wrap: wrap;
         align-items: center;
       }
-      .card .impact {
-        margin: 0;
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--text);
-        border-left: 2px solid var(--accent-color, var(--green));
-        padding-left: 10px;
-      }
       .card p.detail {
         margin: 0;
-        font-size: 12.5px;
+        font-size: 14px;
       }
       .card .badge-demo {
-        font-size: 11px;
+        font-size: 12.1px;
         color: var(--amber);
-        border: 1px dashed #6b5620;
+        border: 1px dashed var(--warn-border);
         border-radius: 999px;
         padding: 3px 9px;
       }
       .card .block-title {
-        font-size: 11px;
+        font-size: 12.1px;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--footer);
@@ -222,14 +275,14 @@
       .card .notes {
         margin: 0;
         padding-left: 16px;
-        font-size: 12.5px;
+        font-size: 14px;
       }
       .card .notes li + li {
         margin-top: 6px;
       }
       .metrics-title {
         margin: 0;
-        font-size: 11px;
+        font-size: 12.1px;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--footer);
@@ -238,7 +291,7 @@
         margin: 0;
         padding: 0;
         list-style: none;
-        font-size: 12.5px;
+        font-size: 14px;
       }
       .metrics li + li {
         margin-top: 6px;
@@ -267,26 +320,22 @@
         margin-top: 14px;
       }
       .stage-single .card {
-        max-width: 940px;
+        max-width: 1180px;
         margin: 0 auto;
         padding: 28px 32px;
         gap: 14px;
       }
       .stage-single .card h3 {
-        font-size: 30px;
+        font-size: 33px;
         font-weight: 400;
       }
       .stage-single .card .step {
-        font-size: 12px;
-      }
-      .stage-single .card .impact {
-        font-size: 16px;
-        padding-left: 12px;
+        font-size: 13.2px;
       }
       .stage-single .card p.detail,
       .stage-single .card .notes,
       .stage-single .card .metrics {
-        font-size: 14px;
+        font-size: 15.5px;
       }
       .toggle-view {
         margin-bottom: 10px;
@@ -326,12 +375,12 @@
       }
       .stage-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
         gap: 12px;
         margin-top: 14px;
       }
       .stage-grid .card h3 {
-        font-size: 16px;
+        font-size: 18px;
       }
       .nav {
         display: flex;
@@ -342,7 +391,7 @@
       }
       .nav .counter {
         color: var(--text);
-        font-size: 14px;
+        font-size: 15.5px;
         min-width: 130px;
       }
       button.arrow-btn {
@@ -351,7 +400,7 @@
         line-height: 1;
         color: var(--body);
         background: transparent;
-        border: 1px solid #39405c;
+        border: 1px solid var(--button-border);
         border-radius: 6px;
         padding: 8px 14px;
         cursor: pointer;
@@ -361,7 +410,7 @@
         background: var(--card-hover);
       }
       button.arrow-btn:disabled {
-        color: #4a5170;
+        color: var(--disabled);
         cursor: default;
       }
       button.arrow-btn:focus-visible {
@@ -378,7 +427,7 @@
         height: 10px;
         padding: 0;
         border-radius: 50%;
-        border: 1px solid #4a5170;
+        border: 1px solid var(--disabled);
         background: transparent;
         cursor: pointer;
       }
@@ -404,13 +453,13 @@
       }
       .panel h4 {
         margin: 0 0 8px;
-        font-size: 13.5px;
+        font-size: 15px;
         color: var(--text);
       }
       .panel ul {
         margin: 0;
         padding-left: 18px;
-        font-size: 12.5px;
+        font-size: 14px;
       }
       .panel li {
         margin-bottom: 6px;
@@ -422,16 +471,16 @@
         display: block;
         margin-top: 10px;
         color: var(--footer);
-        font-size: 11.5px;
+        font-size: 12.7px;
       }
       .warn {
-        border: 1px solid #6b5620;
+        border: 1px solid var(--warn-border);
         border-left: 3px solid var(--amber);
-        background: #211d12;
+        background: var(--warn-bg);
         border-radius: 10px;
         padding: 12px 14px;
         margin-top: 14px;
-        font-size: 13px;
+        font-size: 14.3px;
       }
       .warn strong {
         color: var(--text);
@@ -441,14 +490,14 @@
         margin-top: 34px;
         padding-top: 16px;
         color: var(--footer);
-        font-size: 12px;
+        font-size: 13.2px;
       }
       footer p {
         margin: 0 0 6px;
       }
       @media (max-width: 760px) {
         body {
-          font-size: 14px;
+          font-size: 15.4px;
         }
         .wrap {
           padding: 20px 14px 36px;
@@ -457,16 +506,13 @@
           padding-top: 60px;
         }
         header h1 {
-          font-size: 22px;
+          font-size: 24px;
         }
         .stage-single .card {
           padding: 18px;
         }
         .stage-single .card h3 {
-          font-size: 22px;
-        }
-        .stage-single .card .impact {
-          font-size: 15px;
+          font-size: 24px;
         }
         .stage-row {
           flex-wrap: wrap;
@@ -490,6 +536,78 @@
         }
         .legend {
           margin-bottom: 20px;
+        }
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        margin-top: 4px;
+      }
+      .comparison-col {
+        min-width: 0;
+      }
+      .comparison-col--today {
+        color: var(--muted);
+      }
+      .comparison-col--with {
+        color: var(--body);
+        border-left: 2px solid var(--accent-color, var(--green));
+        padding-left: 12px;
+      }
+      .comparison .block-title {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .comparison-col--with .block-title {
+        color: var(--accent-color, var(--green));
+      }
+      .comparison p {
+        margin: 0;
+        font-size: 14px;
+      }
+      .comparison-impact {
+        grid-column: 1 / -1;
+        border-left: 3px solid var(--accent-color, var(--green));
+        background: var(--panel);
+        padding: 10px 12px;
+        color: var(--text);
+      }
+      .comparison-impact .block-title {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--accent-color, var(--green));
+      }
+      .comparison-impact p {
+        font-size: 15.5px;
+        font-weight: 700;
+      }
+      @media (max-width: 760px) {
+        .comparison {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        .comparison-col--with {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+          padding-left: 0;
+          padding-top: 12px;
+        }
+        .comparison p {
+          font-size: 15.4px;
+        }
+        .comparison-impact p {
+          font-size: 15.4px;
+        }
+      }
+      .theme-toggle {
+        margin-left: auto;
+      }
+      @media (max-width: 760px) {
+        .theme-toggle {
+          margin-left: 0;
         }
       }
     </style>
@@ -523,6 +641,14 @@
       <div class="toggle-view">
         <button class="action secondary" id="show-all" type="button">
           Ver todos
+        </button>
+        <button
+          class="action secondary theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-pressed="false"
+        >
+          Tema claro
         </button>
       </div>
       <div class="controls aside-block">
@@ -637,7 +763,20 @@
     </div>
 
     <script>
-      const COLORS = ["#4EC9B0", "#36C5F0", "#9EAEE9", "#C9A0E8", "#7ED1CC"];
+      const COLORS_DARK = [
+        "#4EC9B0",
+        "#36C5F0",
+        "#9EAEE9",
+        "#C9A0E8",
+        "#7ED1CC",
+      ];
+      const COLORS_LIGHT = [
+        "#0F8F78",
+        "#1183B8",
+        "#5566C4",
+        "#8B4FC0",
+        "#2E8C86",
+      ];
 
       const AUT = {
         assistivo: ["assistivo", "a1"],
@@ -748,6 +887,10 @@
               aut: "assistivo",
               impact:
                 "Reduz busca de contexto: o problema chega estruturado ao time técnico",
+              hoje:
+                "A demanda chega em texto livre ou em reunião; alternativas, riscos e perguntas em aberto aparecem em rodadas sucessivas de conversa com analista e engenheiro sênior.",
+              comDevin:
+                "O playbook !brainstorm devolve 2 a 3 abordagens com trade-offs, riscos e perguntas em aberto num design doc, e a revisão passa a acontecer sobre o documento.",
               detail:
                 "O playbook !brainstorm propõe 2 a 3 abordagens com trade-offs e gera o design doc a partir da descrição em linguagem natural.",
               more: [
@@ -761,6 +904,10 @@
               demo: "Demo: Risk Score",
               impact:
                 "Reduz busca de contexto: a viabilidade é respondida contra a base de código real",
+              hoje:
+                "A viabilidade depende da agenda de quem conhece o sistema e de arqueologia manual de código para achar dependências e pontos de acoplamento.",
+              comDevin:
+                "Ask Devin e DeepWiki respondem contra a base que está em produção e entregam mapa de dependências, riscos e perguntas abertas; a decisão de seguir continua humana.",
               detail:
                 "Ask Devin e DeepWiki avaliam viabilidade na base de código que está em produção. A demo de Risk Score mostra o agente lendo o codebase real, recuperando contexto, identificando dependências e riscos e produzindo artefatos distintos por finalidade.",
               more: [
@@ -774,6 +921,10 @@
               aut: "aprovacao",
               impact:
                 "Reduz trabalho mecânico de estimativa para itens que talvez nunca sejam aprovados",
+              hoje:
+                "Estimativa manual item por item, inclusive para itens que talvez nunca sejam aprovados pelo comitê.",
+              comDevin:
+                "Confidence Score por ticket, sem abrir sessão, permite ordenar o backlog por confiança de execução antes de investir esforço.",
               detail:
                 "Confidence Scores por ticket, sem iniciar sessão, permitem ordenar o backlog por confiança de execução.",
               more: [
@@ -786,6 +937,10 @@
               aut: "assistivo",
               impact:
                 "Reduz trabalho mecânico de reformatar o mesmo conteúdo para público executivo",
+              hoje:
+                "O material executivo é remontado à mão a partir dos documentos técnicos, e cada mudança de escopo significa refazer o deck.",
+              comDevin:
+                "Os playbooks !deck e !slides geram o material a partir dos documentos já validados, mantendo a mesma narrativa; mudança de escopo vira nova versão.",
               detail:
                 "Os playbooks !deck e !slides geram o material de decisão a partir dos documentos já produzidos.",
               more: [
@@ -798,6 +953,10 @@
               aut: "assistivo",
               impact:
                 "Reduz handoffs entre PO, arquitetura e desenvolvimento na escrita do PRD",
+              hoje:
+                "O PO escreve o PRD do zero e as lacunas de escopo só aparecem durante o desenvolvimento.",
+              comDevin:
+                "O PRD Scoping entrega a primeira versão com cenários de uso, critérios de aceite e milestones ancorados no que o código permite; o PO revisa e ajusta.",
               detail:
                 "O PRD Scoping produz PRD estruturado com cenários de uso, critérios de aceite e milestones, ancorado no que o código permite.",
               more: [
@@ -810,6 +969,10 @@
               aut: "assistivo",
               impact:
                 "Reduz busca de contexto no mapeamento de arquitetura e dependências",
+              hoje:
+                "O refinamento técnico vira descoberta de sistema: quem conhece o código reconstitui o mapa de arquitetura de memória.",
+              comDevin:
+                "DeepWiki mapeia arquitetura e acoplamentos e o Devin propõe o plano com passos, arquivos afetados e critérios de validação; o refinamento passa a ser revisão de plano.",
               detail:
                 "DeepWiki mapeia arquitetura e acoplamentos e o Devin propõe plano técnico com passos, arquivos afetados e critérios de validação.",
               more: [
@@ -828,6 +991,10 @@
               aut: "assistivo",
               impact:
                 "Reduz trabalho mecânico de escopar ticket por ticket na reunião",
+              hoje:
+                "O escopo de cada ticket é descoberto na própria reunião, um por um, com as dependências aparecendo depois.",
+              comDevin:
+                "O Bulk-Plan Backlog entrega cada ticket já escopado, com plano passo a passo e dependências sinalizadas; a reunião decide prioridade.",
               detail:
                 "O Bulk-Plan Backlog entrega cada ticket com plano passo a passo e dependências sinalizadas, em paralelo.",
               more: [
@@ -840,6 +1007,10 @@
               aut: "async",
               impact:
                 "Reduz trabalho mecânico da primeira versão e reduz espera por ambiente",
+              hoje:
+                "A primeira versão é escrita à mão e as tarefas disputam ambiente e capacidade da fila de desenvolvimento.",
+              comDevin:
+                "Sessões paralelas, cada uma em VM própria com o repositório configurado; o engenheiro passa a revisar e direcionar em vez de escrever a primeira versão.",
               detail:
                 "Sessões paralelas, cada uma na própria VM com o repositório configurado.",
               metrics: ["ramp80", "hours10k", "gumroad"],
@@ -854,6 +1025,10 @@
               aut: "async",
               impact:
                 "Reduz espera por revisor e reduz trabalho mecânico de vaivém de correções",
+              hoje:
+                "O PR espera revisor humano, as correções vão e voltam em rodadas e a evidência de teste é montada à parte.",
+              comDevin:
+                "Devin Review em todo PR mais test loops: o agente roda os testes, lê a falha e corrige até passar, e a evidência acompanha o PR. O revisor humano continua aprovando.",
               detail:
                 "Devin Review em todo PR mais test loops: o agente roda os testes, lê a falha e corrige até passar.",
               metrics: ["litera90", "cov", "bugs66"],
@@ -867,6 +1042,10 @@
               aut: "aprovacao",
               impact:
                 "Reduz espera por janela de teste manual e reduz busca de contexto do PO",
+              hoje:
+                "O PO agenda janela de teste manual e precisa recompor o contexto da mudança para validar.",
+              comDevin:
+                "O Devin sobe o app no browser, testa a UI e entrega vídeo anotado junto ao PR; o aceite continua sendo do PO.",
               detail:
                 "O Devin sobe o app no browser, testa a UI e entrega vídeo anotado junto ao PR.",
               metrics: ["cycle17"],
@@ -880,6 +1059,10 @@
               aut: "aprovacao",
               impact:
                 "Reduz fila de correção manual de findings de segurança, sem trocar o pipeline",
+              hoje:
+                "Findings de SonarQube, Fortify e Veracode entram numa fila de correção manual que compete com a entrega de produto.",
+              comDevin:
+                "O mesmo pipeline de CI/CD, com correção proposta em PR para os findings no mesmo ciclo; o deploy segue exigindo aprovação humana explícita.",
               detail:
                 "Usa o CI/CD existente e propõe correção para findings de SonarQube, Fortify e Veracode no mesmo ciclo.",
               metrics: ["vuln70"],
@@ -893,6 +1076,10 @@
               aut: "async",
               impact:
                 "Reduz trabalho mecânico de triagem recorrente e de relatórios",
+              hoje:
+                "Triagem de erros novos e relatórios recorrentes consomem o plantão do time, tarefa por tarefa.",
+              comDevin:
+                "Sessões agendadas triam erros (Sentry) e geram os relatórios, com causa provável e correção proposta em PR; o plantão decide o que promover.",
               detail:
                 "Sessões agendadas fazem triagem de erros (Sentry) e relatórios recorrentes, com causa provável e correção proposta.",
               metrics: ["junior"],
@@ -1068,13 +1255,6 @@
           card.appendChild(labels);
         }
 
-        if (item.impact) {
-          const imp = document.createElement("p");
-          imp.className = "impact";
-          imp.textContent = item.impact;
-          card.appendChild(imp);
-        }
-
         const p = document.createElement("p");
         p.className = "detail";
         p.textContent = item.detail;
@@ -1099,6 +1279,41 @@
           card.append(title, list);
         }
 
+        if (item.hoje && item.comDevin) {
+          const comparison = document.createElement("div");
+          comparison.className = "comparison";
+
+          const today = document.createElement("div");
+          today.className = "comparison-col comparison-col--today";
+          const todayTitle = document.createElement("span");
+          todayTitle.className = "block-title";
+          todayTitle.textContent = "Hoje (sem Devin)";
+          const todayText = document.createElement("p");
+          todayText.textContent = item.hoje;
+          today.append(todayTitle, todayText);
+
+          const withDevin = document.createElement("div");
+          withDevin.className = "comparison-col comparison-col--with";
+          const withTitle = document.createElement("span");
+          withTitle.className = "block-title";
+          withTitle.textContent = "Com Devin";
+          const withText = document.createElement("p");
+          withText.textContent = item.comDevin;
+          withDevin.append(withTitle, withText);
+
+          const impact = document.createElement("div");
+          impact.className = "comparison-impact";
+          const impactTitle = document.createElement("span");
+          impactTitle.className = "block-title";
+          impactTitle.textContent = "Impacto";
+          const impactText = document.createElement("p");
+          impactText.textContent = item.impact;
+          impact.append(impactTitle, impactText);
+
+          comparison.append(today, withDevin, impact);
+          card.appendChild(comparison);
+        }
+
         return card;
       }
 
@@ -1109,31 +1324,12 @@
           stages.push({
             item,
             band,
-            color: COLORS[stages.length % COLORS.length],
           });
         });
       });
 
       const guardrailContainer = document.getElementById("band-guardrails");
-      guardrails.forEach((item, i) => {
-        guardrailContainer.appendChild(
-          buildCard(item, {
-            color: COLORS[i % COLORS.length],
-            stepLabel: "Guardrail",
-          }),
-        );
-      });
-
       const govContainer = document.getElementById("band-gov");
-      governance.forEach((item, i) => {
-        govContainer.appendChild(
-          buildCard(item, {
-            color: COLORS[i % COLORS.length],
-            stepLabel: "Transversal",
-          }),
-        );
-      });
-
       const opsContainer = document.getElementById("band-ops");
       opsMetrics.forEach((panel) => {
         const box = document.createElement("div");
@@ -1160,10 +1356,41 @@
       const prevBtn = document.getElementById("prev");
       const nextBtn = document.getElementById("next");
       const showAllBtn = document.getElementById("show-all");
+      const themeToggle = document.getElementById("theme-toggle");
       const wrap = document.getElementById("wrap");
       const status = document.getElementById("status");
       let index = 0;
       let showAll = false;
+
+      function isLightTheme() {
+        return document.documentElement.dataset.theme === "light";
+      }
+
+      function activeColors() {
+        return isLightTheme() ? COLORS_LIGHT : COLORS_DARK;
+      }
+
+      function renderAccentBands() {
+        const colors = activeColors();
+        guardrailContainer.innerHTML = "";
+        guardrails.forEach((item, i) => {
+          guardrailContainer.appendChild(
+            buildCard(item, {
+              color: colors[i % colors.length],
+              stepLabel: "Guardrail",
+            }),
+          );
+        });
+        govContainer.innerHTML = "";
+        governance.forEach((item, i) => {
+          govContainer.appendChild(
+            buildCard(item, {
+              color: colors[i % colors.length],
+              stepLabel: "Transversal",
+            }),
+          );
+        });
+      }
 
       stages.forEach((stage, i) => {
         const dot = document.createElement("button");
@@ -1180,7 +1407,7 @@
 
       function stageCard(i) {
         return buildCard(stages[i].item, {
-          color: stages[i].color,
+          color: activeColors()[i % activeColors().length],
           stepLabel: `Etapa ${i + 1} de ${stages.length} · ${stages[i].band.name}`,
         });
       }
@@ -1226,6 +1453,20 @@
         render();
       }
 
+      function updateThemeToggle() {
+        const light = isLightTheme();
+        themeToggle.textContent = light ? "Tema escuro" : "Tema claro";
+        themeToggle.setAttribute("aria-pressed", String(light));
+      }
+
+      function setTheme(theme, persist = true) {
+        document.documentElement.dataset.theme = theme;
+        if (persist) localStorage.setItem("pdlc-theme", theme);
+        updateThemeToggle();
+        renderAccentBands();
+        render();
+      }
+
       prevBtn.addEventListener("click", () => go(-1));
       nextBtn.addEventListener("click", () => go(1));
       showAllBtn.addEventListener("click", () => {
@@ -1233,6 +1474,12 @@
         render();
       });
 
+      themeToggle.addEventListener("click", () => {
+        setTheme(isLightTheme() ? "dark" : "light");
+      });
+
+      renderAccentBands();
+      updateThemeToggle();
       render();
 
       document.addEventListener("keydown", (e) => {
