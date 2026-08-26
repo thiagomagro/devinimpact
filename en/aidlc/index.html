@@ -1,0 +1,1362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>AI-DLC with the impact of Devin</title>
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        const requested = params.get("theme");
+        const stored = localStorage.getItem("pdlc-theme");
+        const theme =
+          requested === "light" || requested === "dark"
+            ? requested
+            : stored === "light"
+              ? "light"
+              : "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <style>
+      :root {
+        --bg: #10121b;
+        --card: #1c2032;
+        --card-hover: #272d47;
+        --panel: #171b29;
+        --line: #262b40;
+        --text: #ffffff;
+        --body: #c9d1e1;
+        --muted: #9db6d1;
+        --footer: #7b849d;
+        --green: #4ec9b0;
+        --amber: #e3b341;
+        --button-text: #10121b;
+        --thesis-bg: #16241f;
+        --thesis-border: #2f5a52;
+        --warn-bg: #211d12;
+        --warn-border: #6b5620;
+        --button-border: #39405c;
+        --disabled: #4a5170;
+        --chip-a1-text: #8fd3ff;
+        --chip-a1-border: #35597a;
+        --chip-a1-bg: #16222e;
+        --chip-a2-text: #a6e3d0;
+        --chip-a2-border: #2f5a52;
+        --chip-a2-bg: #15231f;
+        --chip-a3-text: #f0cf7a;
+        --chip-a3-border: #6b5620;
+        --chip-a3-bg: #241f12;
+        --chip-mech-text: #a6e3d0;
+        --chip-mech-border: #2f5a52;
+        --chip-mech-bg: #15231f;
+      }
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --bg: #ffffff;
+        --card: #ffffff;
+        --card-hover: #f2f5fa;
+        --panel: #f7f9fc;
+        --line: #e2e7f0;
+        --text: #101426;
+        --body: #3c4557;
+        --muted: #566276;
+        --footer: #6b7484;
+        --green: #0f8f78;
+        --amber: #9a6b06;
+        --button-text: #ffffff;
+        --thesis-bg: #f0faf7;
+        --thesis-border: #bfe3da;
+        --warn-bg: #fdf7e8;
+        --warn-border: #e3cd8d;
+        --button-border: #b8c2d4;
+        --disabled: #9ba6b8;
+        --chip-a1-text: #1d5f8a;
+        --chip-a1-border: #bcd9ee;
+        --chip-a1-bg: #eaf4fb;
+        --chip-a2-text: #16705f;
+        --chip-a2-border: #b6dfd4;
+        --chip-a2-bg: #e9f7f3;
+        --chip-a3-text: #7a5a12;
+        --chip-a3-border: #e2cf99;
+        --chip-a3-bg: #fdf6e5;
+        --chip-mech-text: #16705f;
+        --chip-mech-border: #b6dfd4;
+        --chip-mech-bg: #e9f7f3;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--body);
+        font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+        font-size: 16.5px;
+        line-height: 1.5;
+      }
+      .wrap {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 32px 28px 48px;
+      }
+      header h1 {
+        color: var(--text);
+        font-size: 31px;
+        font-weight: 400;
+        margin: 0 0 6px;
+      }
+      header p.sub {
+        color: var(--muted);
+        margin: 0;
+        font-size: 15.5px;
+      }
+      .accent {
+        width: 60px;
+        height: 3px;
+        background: var(--green);
+        margin: 14px 0 22px;
+      }
+      .thesis {
+        border: 1px solid var(--thesis-border);
+        border-left: 3px solid var(--green);
+        background: var(--thesis-bg);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 22px;
+      }
+      .thesis strong {
+        color: var(--text);
+      }
+      .thesis p {
+        margin: 0;
+        font-size: 15.5px;
+      }
+      .thesis p + p {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 14.3px;
+      }
+      .controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      button.action {
+        font: inherit;
+        font-size: 15.5px;
+        color: var(--button-text);
+        background: var(--green);
+        border: 0;
+        border-radius: 6px;
+        padding: 9px 18px;
+        cursor: pointer;
+      }
+      button.action.secondary {
+        background: transparent;
+        color: var(--body);
+        border: 1px solid var(--button-border);
+      }
+      button.action:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 2px;
+      }
+      .status {
+        color: var(--footer);
+        font-size: 14.3px;
+      }
+      .hint {
+        color: var(--footer);
+        font-size: 13.2px;
+        margin: 0 0 18px;
+      }
+      .legend {
+        display: flex;
+        gap: 8px 18px;
+        flex-wrap: wrap;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 26px;
+        font-size: 13.75px;
+      }
+      .legend .lg-title {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .legend .lg-note {
+        color: var(--footer);
+        flex: 1 1 260px;
+      }
+      .chip {
+        display: inline-block;
+        font-size: 12.1px;
+        letter-spacing: 0.02em;
+        border-radius: 999px;
+        padding: 2px 9px;
+        border: 1px solid;
+        white-space: nowrap;
+      }
+      .chip.a1 {
+        color: var(--chip-a1-text);
+        border-color: var(--chip-a1-border);
+        background: var(--chip-a1-bg);
+      }
+      .chip.a2 {
+        color: var(--chip-a2-text);
+        border-color: var(--chip-a2-border);
+        background: var(--chip-a2-bg);
+      }
+      .chip.a3 {
+        color: var(--chip-a3-text);
+        border-color: var(--chip-a3-border);
+        background: var(--chip-a3-bg);
+      }
+      .chip.mech {
+        color: var(--chip-mech-text);
+        border-color: var(--chip-mech-border);
+        background: var(--chip-mech-bg);
+      }
+      section {
+        margin-bottom: 32px;
+      }
+      .band-title {
+        color: var(--text);
+        font-size: 19px;
+        margin: 0 0 4px;
+        font-weight: 600;
+      }
+      .band-title span {
+        font-weight: 400;
+        color: var(--footer);
+        font-size: 14.3px;
+        margin-left: 8px;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--accent-color, var(--green));
+        border-radius: 12px;
+        padding: 18px;
+      }
+      .card .step {
+        font-size: 12.1px;
+        color: var(--footer);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .card h3 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 700;
+        color: var(--accent-color, var(--green));
+        line-height: 1.25;
+      }
+      .card .labels {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .card p.detail {
+        margin: 0;
+        font-size: 14px;
+      }
+      .card .block-title {
+        font-size: 12.1px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--footer);
+      }
+      .card .notes {
+        margin: 0;
+        padding-left: 16px;
+        font-size: 14px;
+      }
+      .card .notes li + li {
+        margin-top: 6px;
+      }
+      .stage-single {
+        margin-top: 14px;
+      }
+      .stage-single .card {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 28px 32px;
+        gap: 14px;
+      }
+      .stage-single .card h3 {
+        font-size: 33px;
+        font-weight: 400;
+      }
+      .stage-single .card .step {
+        font-size: 13.2px;
+      }
+      .stage-single .card p.detail,
+      .stage-single .card .notes {
+        font-size: 15.5px;
+      }
+      .toggle-view {
+        margin-bottom: 10px;
+      }
+      .wrap.focus header,
+      .wrap.focus .accent,
+      .wrap.focus .aside-block {
+        display: none;
+      }
+      .wrap.focus {
+        padding-top: 64px;
+      }
+      .wrap.focus .toggle-view {
+        position: fixed;
+        top: 14px;
+        right: 16px;
+        z-index: 5;
+        margin: 0;
+      }
+      .wrap.focus .stage-row {
+        min-height: 76vh;
+      }
+      .stage-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .stage-row .stage-single,
+      .stage-row .stage-grid {
+        flex: 1;
+        min-width: 0;
+        margin-top: 0;
+      }
+      .wrap:not(.focus) .stage-row .arrow-btn {
+        display: none;
+      }
+      .stage-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .stage-grid .card h3 {
+        font-size: 18px;
+      }
+      .nav {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .nav .counter {
+        color: var(--text);
+        font-size: 15.5px;
+        min-width: 130px;
+      }
+      button.arrow-btn {
+        font: inherit;
+        font-size: 16px;
+        line-height: 1;
+        color: var(--body);
+        background: transparent;
+        border: 1px solid var(--button-border);
+        border-radius: 6px;
+        padding: 8px 14px;
+        cursor: pointer;
+      }
+      button.arrow-btn:hover:enabled,
+      button.action.secondary:hover {
+        background: var(--card-hover);
+      }
+      button.arrow-btn:disabled {
+        color: var(--disabled);
+        cursor: default;
+      }
+      button.arrow-btn:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 2px;
+      }
+      .dots {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      button.dot {
+        width: 10px;
+        height: 10px;
+        padding: 0;
+        border-radius: 50%;
+        border: 1px solid var(--disabled);
+        background: transparent;
+        cursor: pointer;
+      }
+      button.dot[aria-current="true"] {
+        background: var(--green);
+        border-color: var(--green);
+      }
+      button.dot:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 2px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .panel h4 {
+        margin: 0 0 8px;
+        font-size: 15px;
+        color: var(--text);
+      }
+      .panel ul {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 14px;
+      }
+      .panel li {
+        margin-bottom: 6px;
+      }
+      .panel li:last-child {
+        margin-bottom: 0;
+      }
+      .panel .src {
+        display: block;
+        margin-top: 10px;
+        color: var(--footer);
+        font-size: 12.7px;
+      }
+      .warn {
+        border: 1px solid var(--warn-border);
+        border-left: 3px solid var(--amber);
+        background: var(--warn-bg);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-top: 14px;
+        font-size: 14.3px;
+      }
+      .warn strong {
+        color: var(--text);
+      }
+      .cycle {
+        display: flex;
+        gap: 8px;
+        align-items: stretch;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+      .cycle .phase {
+        flex: 1 1 150px;
+        min-width: 150px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--phase-color, var(--green));
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .cycle .phase b {
+        display: block;
+        color: var(--phase-color, var(--green));
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .cycle .phase span {
+        font-size: 13.2px;
+        color: var(--muted);
+      }
+      .cycle .flow-arrow {
+        align-self: center;
+        color: var(--footer);
+        font-size: 18px;
+        flex: 0 0 auto;
+      }
+      .cycle-loop {
+        color: var(--footer);
+        font-size: 13.2px;
+        margin: 8px 0 0;
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        margin-top: 34px;
+        padding-top: 16px;
+        color: var(--footer);
+        font-size: 13.2px;
+      }
+      footer p {
+        margin: 0 0 6px;
+      }
+      footer a {
+        color: var(--muted);
+      }
+      @media (max-width: 760px) {
+        body {
+          font-size: 15.4px;
+        }
+        .wrap {
+          padding: 20px 14px 36px;
+        }
+        .wrap.focus {
+          padding-top: 60px;
+        }
+        header h1 {
+          font-size: 24px;
+        }
+        .stage-single .card {
+          padding: 18px;
+        }
+        .stage-single .card h3 {
+          font-size: 24px;
+        }
+        .stage-row {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .stage-row .stage-single,
+        .stage-row .stage-grid {
+          flex: 1 1 100%;
+          order: -1;
+        }
+        .stage-row .arrow-btn {
+          flex: 1 1 40%;
+          padding: 12px;
+        }
+        .wrap.focus .stage-row {
+          min-height: 0;
+        }
+        .stage-grid,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .legend {
+          margin-bottom: 20px;
+        }
+        .cycle .flow-arrow {
+          display: none;
+        }
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        margin-top: 4px;
+      }
+      .comparison-col {
+        min-width: 0;
+      }
+      .comparison-col--today {
+        color: var(--muted);
+      }
+      .comparison-col--with {
+        color: var(--body);
+        border-left: 2px solid var(--accent-color, var(--green));
+        padding-left: 12px;
+      }
+      .comparison .block-title {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .comparison-col--with .block-title {
+        color: var(--accent-color, var(--green));
+      }
+      .comparison p {
+        margin: 0;
+        font-size: 14px;
+      }
+      .comparison-impact {
+        grid-column: 1 / -1;
+        border-left: 3px solid var(--accent-color, var(--green));
+        background: var(--panel);
+        padding: 10px 12px;
+        color: var(--text);
+      }
+      .comparison-impact .block-title {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--accent-color, var(--green));
+      }
+      .comparison-impact p {
+        font-size: 15.5px;
+        font-weight: 700;
+      }
+      @media (max-width: 760px) {
+        .comparison {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        .comparison-col--with {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+          padding-left: 0;
+          padding-top: 12px;
+        }
+        .comparison p {
+          font-size: 15.4px;
+        }
+        .comparison-impact p {
+          font-size: 15.4px;
+        }
+      }
+      .theme-toggle {
+        margin-left: auto;
+      }
+      @media (max-width: 760px) {
+        .theme-toggle {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="wrap">
+      <header>
+        <h1>AI-DLC with the impact of Devin</h1>
+        <p class="sub">
+          The phases of the AI-Driven Development Life Cycle (AWS) and how
+          Devin implements each one with Knowledge, Playbooks, Skills,
+          Plugins, Automations and DeepWiki.
+        </p>
+      </header>
+      <div class="accent"></div>
+
+      <div class="thesis aside-block">
+        <p>
+          <strong>Thesis:</strong> AI-DLC organizes AI-driven development into
+          short phases with human approval gates, persistent memory and
+          continuous learning. Devin implements this cycle with native
+          primitives: Knowledge is the memory, Playbooks are the gated
+          workflows, Skills are the versioned procedures, Plugins are the
+          integrations, Automations are the recurring triggers and DeepWiki is
+          the living map of the system.
+        </p>
+        <p>
+          Each card shows one stage of the cycle, what changes with Devin and
+          which mechanisms support the stage. The approval gates and the
+          decision owners remain human.
+        </p>
+      </div>
+
+      <div class="aside-block">
+        <h2 class="band-title">
+          The AI-DLC cycle <span>5 phases, approval gates between them</span>
+        </h2>
+        <div class="cycle" id="cycle"></div>
+        <p class="cycle-loop">
+          ↺ Operation feeds Inception: human corrections become persistent
+          learnings (Knowledge) and the next cycle starts smarter.
+        </p>
+      </div>
+
+      <div class="toggle-view">
+        <button class="action secondary" id="show-all" type="button">
+          View all
+        </button>
+        <button
+          class="action secondary theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-pressed="false"
+        >
+          Light theme
+        </button>
+      </div>
+      <div class="controls aside-block">
+        <span class="status" id="status">
+          Navigate stage by stage with the arrows or the keyboard.
+        </span>
+      </div>
+      <p class="hint aside-block">
+        Use the keyboard arrows (← →) or the buttons to move between stages.
+      </p>
+
+      <div class="legend aside-block">
+        <span class="lg-title">Autonomy levels:</span>
+        <span class="chip a1">assistive</span>
+        <span class="chip a2">async with review</span>
+        <span class="chip a3">requires human approval</span>
+        <span class="lg-title">Mechanisms:</span>
+        <span class="chip mech">Knowledge</span>
+        <span class="chip mech">Playbooks</span>
+        <span class="chip mech">Skills</span>
+        <span class="chip mech">Plugins</span>
+        <span class="chip mech">Automations</span>
+        <span class="chip mech">DeepWiki</span>
+        <span class="lg-note">
+          Each stage lists the Devin mechanisms that support it. The autonomy
+          level is configurable per stage and per team; high-risk actions
+          always require human approval.
+        </span>
+      </div>
+
+      <section>
+        <h2 class="band-title aside-block" id="stage-band-title">
+          Stages of the cycle <span id="stage-band-sub"></span>
+        </h2>
+        <div class="stage-row">
+          <button
+            class="arrow-btn"
+            id="prev"
+            type="button"
+            aria-label="Previous stage"
+          >
+            ←
+          </button>
+          <div class="stage-single" id="stage-view" aria-live="polite"></div>
+          <button
+            class="arrow-btn"
+            id="next"
+            type="button"
+            aria-label="Next stage"
+          >
+            →
+          </button>
+        </div>
+        <div class="nav aside-block">
+          <span class="counter" id="counter"></span>
+          <div class="dots" id="dots" role="tablist" aria-label="Stages"></div>
+        </div>
+      </section>
+
+      <section class="aside-block">
+        <h2 class="band-title">
+          Devin's 6 mechanisms
+          <span>What each one implements from AI-DLC</span>
+        </h2>
+        <div class="grid" id="band-mechanisms"></div>
+      </section>
+
+      <section class="aside-block">
+        <h2 class="band-title">
+          Approval gates <span>Where the human decides, with an audit trail</span>
+        </h2>
+        <div class="grid" id="band-gates"></div>
+        <div class="warn">
+          <strong>Gates are not bureaucracy — they are the control mechanism.</strong>
+          In AI-DLC, each phase ends in a human checkpoint. In Devin, gates
+          become explicit playbook steps and auditable approvals
+          (approve_deploy, approve_test_app, human PR review). Autonomy is a
+          dial per stage, not a global switch.
+        </div>
+      </section>
+
+      <footer class="aside-block">
+        <p>
+          Based on the AI-DLC (AI-Driven Development Life Cycle) published by
+          AWS:
+          <a
+            href="https://builder.aws.com/content/3HOzUT8PpaWInD7lp1AlZVrZSdb/primeiros-passos-com-o-ai-dlc-ai-driven-development-life-cycle-no-kiro"
+            >article on AWS Builder Center</a
+          >
+          and
+          <a href="https://github.com/awslabs/aidlc-workflows/tree/v2"
+            >reference implementation (aidlc-workflows)</a
+          >.
+        </p>
+        <p>
+          The reference AI-DLC uses 14 agents, 32 stages, 9 scopes and 3 depth
+          levels. The mapping here shows how the same concepts are implemented
+          with Devin's native primitives, without replacing the pipeline or
+          the decision owners.
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      const COLORS_DARK = [
+        "#4EC9B0",
+        "#36C5F0",
+        "#9EAEE9",
+        "#C9A0E8",
+        "#7ED1CC",
+      ];
+      const COLORS_LIGHT = [
+        "#0F8F78",
+        "#1183B8",
+        "#5566C4",
+        "#8B4FC0",
+        "#2E8C86",
+      ];
+
+      const AUT = {
+        assistivo: ["assistive", "a1"],
+        async: ["async with review", "a2"],
+        aprovacao: ["requires human approval", "a3"],
+      };
+
+      const PHASES = [
+        ["1. Inception", "Workspace, context and rules"],
+        ["2. Ideation", "From intent to units of work"],
+        ["3. Conception", "Technical design with a gate"],
+        ["4. Construction", "Parallel execution with quality gates"],
+        ["5. Operation", "Operations and persistent learning"],
+      ];
+
+      const bands = [
+        {
+          name: "1. Inception",
+          sub: "Preparing the workspace, the context and the rules",
+          items: [
+            {
+              title: "Workspace and persistent context",
+              aut: "assistivo",
+              mech: ["Knowledge", "Plugins", "DeepWiki"],
+              impact:
+                "AI-DLC's persistent memory becomes infrastructure: nobody re-explains context",
+              hoje:
+                "Every AI session starts from zero: the developer re-explains architecture, standards and conventions, and corrections are lost when the conversation ends.",
+              comDevin:
+                "Knowledge (organization and repository) is automatically injected into every session; Plugins bring skills, rules and MCP integrations ready to use; the environment blueprint delivers a VM already configured with the repository.",
+              detail:
+                "Knowledge notes are AI-DLC's persistent learnings: business context, code standards and architecture decisions available in every session, for every team member.",
+              more: [
+                "DeepWiki keeps a navigable, always up-to-date map of each repository: architecture, dependencies and flows, without depending on the memory of whoever knows the system.",
+                "Corrections made by humans during sessions become Knowledge suggestions: what one squad learns stops being trapped in the conversation.",
+              ],
+            },
+            {
+              title: "Workflow scope and depth",
+              aut: "assistivo",
+              mech: ["Playbooks"],
+              impact:
+                "Adaptive process: rigor scales with the size of the demand, without reinventing the workflow",
+              hoje:
+                "The same heavy process is applied to everything — from spike to critical feature — or no process is applied at all.",
+              comDevin:
+                "Families of playbooks per scope (spike, feature, initiative) and per depth reproduce AI-DLC's scopes and levels: the team picks the playbook and the right rigor comes with it.",
+              detail:
+                "AI-DLC defines 9 scopes (from Enterprise to Workshop) and 3 depths (Minimum, Standard, Comprehensive). In Devin, this is a family of versioned playbooks curated by the organization.",
+              more: [
+                "Playbooks are reusable across squads: the workflow validated by one team becomes the standard for the others.",
+                "Choosing the playbook is human; executing the process consistently is the agent's job.",
+              ],
+            },
+          ],
+        },
+        {
+          name: "2. Ideation",
+          sub: "From business intent to units of work",
+          items: [
+            {
+              title: "Intent → requirements",
+              aut: "assistivo",
+              mech: ["Playbooks", "Knowledge", "DeepWiki"],
+              impact:
+                "Requirements verifiable against the real code, before investing in construction",
+              hoje:
+                "Requirements are written from scratch in free text; scope gaps and conflicts with the existing system only surface during construction.",
+              comDevin:
+                "The requirements playbook generates user stories and acceptance criteria anchored in the real code (via DeepWiki) and in the standards and business rules recorded in Knowledge.",
+              detail:
+                "AI-DLC's Ideation phase turns intent into clear requirements through clarifying questions. The playbook drives exactly that structured interrogation and records the answers.",
+              more: [
+                "The phase gate remains human: PO and analyst approve the requirements before the cycle moves on.",
+                "Open questions are explicit in the document, instead of being turned into silent assumptions.",
+              ],
+            },
+            {
+              title: "Decomposition into units of work",
+              aut: "assistivo",
+              mech: ["Playbooks", "Automations"],
+              impact:
+                "The planning meeting decides priority instead of discovering scope",
+              hoje:
+                "Decomposition happens in the meeting itself, item by item, and dependencies between tasks only appear later, during execution.",
+              comDevin:
+                "Bulk-plan scopes each unit of work in parallel, with a step-by-step plan and flagged dependencies; the per-ticket Confidence Score orders the backlog by execution confidence before spending a session.",
+              detail:
+                "AI-DLC's units of work become scoped tickets with an executable plan: the plan the team approves is the same one the session executes.",
+              more: [
+                "Automations can trigger the scoping automatically when the ticket lands on the board (Jira, Linear, ServiceNow via Plugins).",
+                "Fewer handoffs between planning and development: nothing gets lost in scope translation.",
+              ],
+            },
+          ],
+        },
+        {
+          name: "3. Conception",
+          sub: "Technical design with an approval gate",
+          items: [
+            {
+              title: "Design and architecture",
+              aut: "assistivo",
+              mech: ["DeepWiki", "Knowledge", "Playbooks"],
+              impact:
+                "Technical refinement becomes plan review, not system discovery",
+              hoje:
+                "Design depends on the availability of whoever knows the system, who reconstructs the architecture map from memory; couplings show up late.",
+              comDevin:
+                "DeepWiki maps architecture, dependencies and coupling points; the design playbook produces the spec with affected files, contracts and validation criteria, following the standards recorded in Knowledge.",
+              detail:
+                "AI-DLC's Conception produces the technical design of the solution. With Devin, the spec is born anchored in the code that is in production, not in an outdated diagram.",
+              more: [
+                "Whoever knows the system validates the plan instead of rebuilding it: senior knowledge is used to decide, not to excavate.",
+                "The plan references concrete files and modules, which reduces clarification rounds during construction.",
+              ],
+            },
+            {
+              title: "Design approval gate",
+              aut: "aprovacao",
+              mech: ["Playbooks"],
+              impact:
+                "The human decides the direction before the code, with an auditable record",
+              hoje:
+                "The design moves to construction without a formal checkpoint, and direction rework only appears in code review, when the code already exists.",
+              comDevin:
+                "The playbook stops and requires explicit human approval before construction: AI-DLC's between-phase gate becomes a step of the workflow, with the plan and the decision recorded in the session.",
+              detail:
+                "Approval gates are AI-DLC's central control mechanism. In Devin, they are explicit playbook steps — they do not depend on individual discipline.",
+              more: [
+                "The decision is recorded: who approved, what and when, linked to the session and the resulting PR.",
+                "Changing direction at this point costs a document revision, not a sprint of rework.",
+              ],
+            },
+          ],
+        },
+        {
+          name: "4. Construction",
+          sub: "Parallel execution with automatic quality gates",
+          items: [
+            {
+              title: "Parallel implementation",
+              aut: "async",
+              mech: ["Skills", "Plugins", "Knowledge"],
+              impact:
+                "The engineer directs and reviews instead of writing the first version",
+              hoje:
+                "One task at a time, environment contention between tasks, and the first version of everything is written by hand.",
+              comDevin:
+                "Parallel sessions — the equivalent of AI-DLC's specialist agents — execute the units of work, each in its own VM; Skills versioned in the repository execute standardized procedures; Plugins integrate internal tools via MCP.",
+              detail:
+                "AI-DLC's 14 specialized agents become sessions (and child sessions) with a clean context per workstream, coordinated by a lead session.",
+              more: [
+                "Skills live in the repository, versioned and reviewed like code: the right procedure runs the same way in every squad.",
+                "Knowledge ensures every session follows the organization's standards without anyone repeating them in the prompt.",
+              ],
+            },
+            {
+              title: "Automatic quality gates",
+              aut: "async",
+              mech: ["Automations", "Playbooks", "Plugins"],
+              impact:
+                "Quality and security verified on every PR, before the human reviewer",
+              hoje:
+                "Human review is the only quality filter, and security analysis comes in late, as a queue separate from delivery.",
+              comDevin:
+                "Devin Review runs on every PR (bugs, flags, security) — the equivalent of AI-DLC's review-only agents; test loops run, read the failure and fix until green; Automations trigger security scanning and ticket remediation (Security Swarm at portfolio scale).",
+              detail:
+                "AI-DLC's quality gates become continuous verification: every PR reaches the human reviewer already reviewed, tested and with evidence attached.",
+              more: [
+                "Merging still requires human approval: the final construction gate belongs to the reviewer, not the agent.",
+                "Security findings (SAST/SCA via Plugins) enter the same cycle as proposed fix PRs, subject to the same gates.",
+              ],
+            },
+          ],
+        },
+        {
+          name: "5. Operation",
+          sub: "Continuous operations and persistent learning",
+          items: [
+            {
+              title: "Operations and monitoring",
+              aut: "async",
+              mech: ["Automations", "Plugins"],
+              impact:
+                "Recurring operations leave the team's queue and become scheduled work",
+              hoje:
+                "Error triage, CI follow-up and recurring reports consume the on-call rotation, task by task.",
+              comDevin:
+                "Scheduled and event-driven Automations triage errors (Sentry, Datadog via Plugins), watch CI/CD, generate reports and propose fixes in PRs with a probable cause.",
+              detail:
+                "AI-DLC's Operation phase covers deploy and continuous operations. In Devin, it runs as automations with time- and event-based triggers, without consuming the delivery queue.",
+              more: [
+                "Deploy still requires explicit human approval (approve_deploy); no automation merges blindly.",
+                "The on-call engineer decides what to promote: the agent prepares diagnosis and fix, the human decides.",
+              ],
+            },
+            {
+              title: "Learnings → permanent context",
+              aut: "assistivo",
+              mech: ["Knowledge", "Skills", "Playbooks", "DeepWiki"],
+              impact:
+                "The cycle closes: each iteration makes the next one faster and safer",
+              hoje:
+                "Learning dies in the conversation: each squad rediscovers the same patterns, and the same mistake is fixed multiple times in different places.",
+              comDevin:
+                "Human corrections become Knowledge suggestions; procedures that worked become versioned Skills and Playbooks; DeepWiki updates itself with the code. The next Inception cycle starts with all of this available.",
+              detail:
+                "It is AI-DLC's learning loop (corrections → persistent rules) implemented at organization scale, with human curation of what becomes standard.",
+              more: [
+                "Curation is the role of the context management structure: promote what is general, discard what is noise.",
+                "This is what prevents knowledge from staying trapped inside each squad — and what reduces ACU spent on rediscovery.",
+              ],
+            },
+          ],
+        },
+      ];
+
+      const mechanisms = [
+        {
+          title: "Knowledge",
+          detail:
+            "AI-DLC's persistent memory. Business context, standards and decisions automatically injected into every session.",
+          more: [
+            "Scoped per organization, repository and folder; human curation of what becomes standard.",
+            "AI-DLC's learnings: corrections made in a session become knowledge suggestions for the team to approve.",
+          ],
+        },
+        {
+          title: "Playbooks",
+          detail:
+            "AI-DLC's workflows with built-in gates. Repeatable processes, versioned and shareable across squads.",
+          more: [
+            "A family of playbooks reproduces scopes and depths: spike, feature, initiative.",
+            "Human approval gates are explicit steps of the workflow, not individual discipline.",
+          ],
+        },
+        {
+          title: "Skills",
+          detail:
+            "Executable procedures versioned in the repository. The standardized 'how to' that runs the same way in every team.",
+          more: [
+            "They live in .agents/skills/ and go through review like any code.",
+            "They are the equivalent of the specialized procedures of AI-DLC's agents.",
+          ],
+        },
+        {
+          title: "Plugins",
+          detail:
+            "The cycle's integrations: Jira/ServiceNow, security scanners, observability and internal tools via MCP.",
+          more: [
+            "They package skills, rules and MCP servers to distribute to entire squads at once.",
+            "They are what connects the cycle to the tools the bank already uses, without replacing the pipeline.",
+          ],
+        },
+        {
+          title: "Automations",
+          detail:
+            "The cycle's triggers: event-driven (ticket created, PR opened, security finding) or scheduled (scans, reports).",
+          more: [
+            "Automatic remediation of security tickets and Security Swarm at portfolio scale.",
+            "Every output is a PR subject to the same gates — automation does not mean blind merges.",
+          ],
+        },
+        {
+          title: "DeepWiki",
+          detail:
+            "The living map of the system: architecture, dependencies and flows of each repository, always in sync with the code.",
+          more: [
+            "It supports Ideation and Conception: requirements and design anchored in what is in production.",
+            "It reduces the dependency on the availability of whoever knows the system.",
+          ],
+        },
+      ];
+
+      const gates = [
+        {
+          title: "Gate 1 · Requirements",
+          detail:
+            "End of Ideation: PO and analyst approve requirements and acceptance criteria before the cycle moves on.",
+          more: [
+            "The playbook does not advance without the recorded approval.",
+            "A scope change here costs a document revision, not code rework.",
+          ],
+        },
+        {
+          title: "Gate 2 · Design",
+          detail:
+            "End of Conception: engineering approves the technical spec — affected files, contracts and validation criteria — before construction.",
+          more: [
+            "The decision is linked to the session and the resulting PR: who approved, what and when.",
+            "It is the gate that prevents direction rework from appearing only in code review.",
+          ],
+        },
+        {
+          title: "Gate 3 · Merge and deploy",
+          detail:
+            "End of Construction: human review approves the merge; deploy requires explicit approval (approve_deploy).",
+          more: [
+            "Devin Review, tests and security scanning arrive before the reviewer, as evidence attached to the PR.",
+            "No automation merges or deploys without a human click.",
+          ],
+        },
+      ];
+
+      function buildCard(item, opts) {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.style.setProperty("--accent-color", opts.color);
+
+        const step = document.createElement("div");
+        step.className = "step";
+        step.textContent = opts.stepLabel;
+
+        const h = document.createElement("h3");
+        h.textContent = item.title;
+
+        card.append(step, h);
+
+        if (item.aut || (item.mech && item.mech.length)) {
+          const labels = document.createElement("div");
+          labels.className = "labels";
+          if (item.aut) {
+            const [label, cls] = AUT[item.aut];
+            const chip = document.createElement("span");
+            chip.className = "chip " + cls;
+            chip.textContent = label;
+            labels.appendChild(chip);
+          }
+          if (item.mech) {
+            item.mech.forEach((name) => {
+              const chip = document.createElement("span");
+              chip.className = "chip mech";
+              chip.textContent = name;
+              labels.appendChild(chip);
+            });
+          }
+          card.appendChild(labels);
+        }
+
+        const p = document.createElement("p");
+        p.className = "detail";
+        p.textContent = item.detail;
+        card.appendChild(p);
+
+        const notes = document.createElement("ul");
+        notes.className = "notes";
+        item.more.forEach((text) => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          notes.appendChild(li);
+        });
+        card.appendChild(notes);
+
+        if (item.hoje && item.comDevin) {
+          const comparison = document.createElement("div");
+          comparison.className = "comparison";
+
+          const today = document.createElement("div");
+          today.className = "comparison-col comparison-col--today";
+          const todayTitle = document.createElement("span");
+          todayTitle.className = "block-title";
+          todayTitle.textContent = "Today (AI without structure)";
+          const todayText = document.createElement("p");
+          todayText.textContent = item.hoje;
+          today.append(todayTitle, todayText);
+
+          const withDevin = document.createElement("div");
+          withDevin.className = "comparison-col comparison-col--with";
+          const withTitle = document.createElement("span");
+          withTitle.className = "block-title";
+          withTitle.textContent = "With Devin";
+          const withText = document.createElement("p");
+          withText.textContent = item.comDevin;
+          withDevin.append(withTitle, withText);
+
+          const impact = document.createElement("div");
+          impact.className = "comparison-impact";
+          const impactTitle = document.createElement("span");
+          impactTitle.className = "block-title";
+          impactTitle.textContent = "Impact";
+          const impactText = document.createElement("p");
+          impactText.textContent = item.impact;
+          impact.append(impactTitle, impactText);
+
+          comparison.append(today, withDevin, impact);
+          card.appendChild(comparison);
+        }
+
+        return card;
+      }
+
+      const stages = [];
+
+      bands.forEach((band) => {
+        band.items.forEach((item) => {
+          stages.push({
+            item,
+            band,
+          });
+        });
+      });
+
+      const mechContainer = document.getElementById("band-mechanisms");
+      const gatesContainer = document.getElementById("band-gates");
+      const cycleContainer = document.getElementById("cycle");
+
+      const stageView = document.getElementById("stage-view");
+      const bandSub = document.getElementById("stage-band-sub");
+      const counter = document.getElementById("counter");
+      const dots = document.getElementById("dots");
+      const prevBtn = document.getElementById("prev");
+      const nextBtn = document.getElementById("next");
+      const showAllBtn = document.getElementById("show-all");
+      const themeToggle = document.getElementById("theme-toggle");
+      const wrap = document.getElementById("wrap");
+      const status = document.getElementById("status");
+      let index = 0;
+      let showAll = false;
+
+      function isLightTheme() {
+        return document.documentElement.dataset.theme === "light";
+      }
+
+      function activeColors() {
+        return isLightTheme() ? COLORS_LIGHT : COLORS_DARK;
+      }
+
+      function renderCycle() {
+        const colors = activeColors();
+        cycleContainer.innerHTML = "";
+        PHASES.forEach(([name, sub], i) => {
+          if (i > 0) {
+            const arrow = document.createElement("span");
+            arrow.className = "flow-arrow";
+            arrow.textContent = "→";
+            cycleContainer.appendChild(arrow);
+          }
+          const phase = document.createElement("div");
+          phase.className = "phase";
+          phase.style.setProperty("--phase-color", colors[i % colors.length]);
+          const b = document.createElement("b");
+          b.textContent = name;
+          const span = document.createElement("span");
+          span.textContent = sub;
+          phase.append(b, span);
+          cycleContainer.appendChild(phase);
+        });
+      }
+
+      function renderAccentBands() {
+        const colors = activeColors();
+        mechContainer.innerHTML = "";
+        mechanisms.forEach((item, i) => {
+          mechContainer.appendChild(
+            buildCard(item, {
+              color: colors[i % colors.length],
+              stepLabel: "Mechanism",
+            }),
+          );
+        });
+        gatesContainer.innerHTML = "";
+        gates.forEach((item, i) => {
+          gatesContainer.appendChild(
+            buildCard(item, {
+              color: colors[i % colors.length],
+              stepLabel: "Human gate",
+            }),
+          );
+        });
+        renderCycle();
+      }
+
+      stages.forEach((stage, i) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "dot";
+        dot.setAttribute("aria-label", `Stage ${i + 1}: ${stage.item.title}`);
+        dot.addEventListener("click", () => {
+          showAll = false;
+          index = i;
+          render();
+        });
+        dots.appendChild(dot);
+      });
+
+      function stageCard(i) {
+        return buildCard(stages[i].item, {
+          color: activeColors()[i % activeColors().length],
+          stepLabel: `Stage ${i + 1} of ${stages.length} · ${stages[i].band.name}`,
+        });
+      }
+
+      function render() {
+        stageView.innerHTML = "";
+        stageView.className = showAll ? "stage-grid" : "stage-single";
+        if (showAll) {
+          stages.forEach((_, i) => stageView.appendChild(stageCard(i)));
+        } else {
+          stageView.appendChild(stageCard(index));
+        }
+
+        const dotList = dots.querySelectorAll(".dot");
+        dotList.forEach((dot, i) => {
+          dot.setAttribute("aria-current", String(!showAll && i === index));
+        });
+
+        prevBtn.disabled = showAll || index === 0;
+        nextBtn.disabled = showAll || index === stages.length - 1;
+        wrap.classList.toggle("focus", !showAll);
+        showAllBtn.textContent = showAll ? "View one stage" : "View all";
+        showAllBtn.setAttribute("aria-pressed", String(showAll));
+
+        if (showAll) {
+          bandSub.textContent = `Overview of all ${stages.length} stages`;
+          counter.textContent = `${stages.length} stages`;
+          status.textContent =
+            "Overview. Use View one stage to return to card-by-card navigation.";
+        } else {
+          const stage = stages[index];
+          bandSub.textContent = `${stage.band.name}: ${stage.band.sub}`;
+          counter.textContent = `Stage ${index + 1} of ${stages.length}`;
+          status.textContent = stage.item.title;
+        }
+      }
+
+      function go(delta) {
+        if (showAll) return;
+        const target = index + delta;
+        if (target < 0 || target >= stages.length) return;
+        index = target;
+        render();
+      }
+
+      function updateThemeToggle() {
+        const light = isLightTheme();
+        themeToggle.textContent = light ? "Dark theme" : "Light theme";
+        themeToggle.setAttribute("aria-pressed", String(light));
+      }
+
+      function setTheme(theme, persist = true) {
+        document.documentElement.dataset.theme = theme;
+        if (persist) localStorage.setItem("pdlc-theme", theme);
+        updateThemeToggle();
+        renderAccentBands();
+        render();
+      }
+
+      prevBtn.addEventListener("click", () => go(-1));
+      nextBtn.addEventListener("click", () => go(1));
+      showAllBtn.addEventListener("click", () => {
+        showAll = !showAll;
+        render();
+      });
+
+      themeToggle.addEventListener("click", () => {
+        setTheme(isLightTheme() ? "dark" : "light");
+      });
+
+      renderAccentBands();
+      updateThemeToggle();
+      render();
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "PageDown") go(1);
+        if (e.key === "ArrowLeft" || e.key === "PageUp") go(-1);
+      });
+    </script>
+  </body>
+</html>
