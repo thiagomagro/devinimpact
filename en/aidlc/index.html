@@ -3,22 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="color-scheme" content="dark" />
     <title>AI-DLC with the impact of Devin</title>
-    <script>
-      (() => {
-        const params = new URLSearchParams(window.location.search);
-        const requested = params.get("theme");
-        const stored = localStorage.getItem("pdlc-theme");
-        const theme =
-          requested === "light" || requested === "dark"
-            ? requested
-            : stored === "light"
-              ? "light"
-              : "dark";
-        document.documentElement.setAttribute("data-theme", theme);
-      })();
-    </script>
     <style>
       :root {
         --bg: #10121b;
@@ -51,39 +37,6 @@
         --chip-mech-text: #a6e3d0;
         --chip-mech-border: #2f5a52;
         --chip-mech-bg: #15231f;
-      }
-      :root[data-theme="light"] {
-        color-scheme: light;
-        --bg: #ffffff;
-        --card: #ffffff;
-        --card-hover: #f2f5fa;
-        --panel: #f7f9fc;
-        --line: #e2e7f0;
-        --text: #101426;
-        --body: #3c4557;
-        --muted: #566276;
-        --footer: #6b7484;
-        --green: #0f8f78;
-        --amber: #9a6b06;
-        --button-text: #ffffff;
-        --thesis-bg: #f0faf7;
-        --thesis-border: #bfe3da;
-        --warn-bg: #fdf7e8;
-        --warn-border: #e3cd8d;
-        --button-border: #b8c2d4;
-        --disabled: #9ba6b8;
-        --chip-a1-text: #1d5f8a;
-        --chip-a1-border: #bcd9ee;
-        --chip-a1-bg: #eaf4fb;
-        --chip-a2-text: #16705f;
-        --chip-a2-border: #b6dfd4;
-        --chip-a2-bg: #e9f7f3;
-        --chip-a3-text: #7a5a12;
-        --chip-a3-border: #e2cf99;
-        --chip-a3-bg: #fdf6e5;
-        --chip-mech-text: #16705f;
-        --chip-mech-border: #b6dfd4;
-        --chip-mech-bg: #e9f7f3;
       }
       * {
         box-sizing: border-box;
@@ -611,14 +564,6 @@
           font-size: 15.4px;
         }
       }
-      .theme-toggle {
-        margin-left: auto;
-      }
-      @media (max-width: 760px) {
-        .theme-toggle {
-          margin-left: 0;
-        }
-      }
     </style>
   </head>
   <body>
@@ -663,24 +608,17 @@
 
       <div class="toggle-view">
         <button class="action secondary" id="show-all" type="button">
-          View all
-        </button>
-        <button
-          class="action secondary theme-toggle"
-          id="theme-toggle"
-          type="button"
-          aria-pressed="false"
-        >
-          Light theme
+          Slideshow
         </button>
       </div>
       <div class="controls aside-block">
         <span class="status" id="status">
-          Navigate stage by stage with the arrows or the keyboard.
+          Overview. Click Slideshow to navigate stage by stage.
         </span>
       </div>
       <p class="hint aside-block">
-        Use the keyboard arrows (← →) or the buttons to move between stages.
+        Click Slideshow to navigate stage by stage. In the slideshow, use the
+        keyboard arrows (← →) or the buttons to move between stages.
       </p>
 
       <div class="legend aside-block">
@@ -776,19 +714,12 @@
     </div>
 
     <script>
-      const COLORS_DARK = [
+      const COLORS = [
         "#4EC9B0",
         "#36C5F0",
         "#9EAEE9",
         "#C9A0E8",
         "#7ED1CC",
-      ];
-      const COLORS_LIGHT = [
-        "#0F8F78",
-        "#1183B8",
-        "#5566C4",
-        "#8B4FC0",
-        "#2E8C86",
       ];
 
       const AUT = {
@@ -1204,22 +1135,13 @@
       const prevBtn = document.getElementById("prev");
       const nextBtn = document.getElementById("next");
       const showAllBtn = document.getElementById("show-all");
-      const themeToggle = document.getElementById("theme-toggle");
       const wrap = document.getElementById("wrap");
       const status = document.getElementById("status");
       let index = 0;
-      let showAll = false;
-
-      function isLightTheme() {
-        return document.documentElement.dataset.theme === "light";
-      }
-
-      function activeColors() {
-        return isLightTheme() ? COLORS_LIGHT : COLORS_DARK;
-      }
+      let showAll = true;
 
       function renderCycle() {
-        const colors = activeColors();
+        const colors = COLORS;
         cycleContainer.innerHTML = "";
         PHASES.forEach(([name, sub], i) => {
           if (i > 0) {
@@ -1241,7 +1163,7 @@
       }
 
       function renderAccentBands() {
-        const colors = activeColors();
+        const colors = COLORS;
         mechContainer.innerHTML = "";
         mechanisms.forEach((item, i) => {
           mechContainer.appendChild(
@@ -1278,7 +1200,7 @@
 
       function stageCard(i) {
         return buildCard(stages[i].item, {
-          color: activeColors()[i % activeColors().length],
+          color: COLORS[i % COLORS.length],
           stepLabel: `Stage ${i + 1} of ${stages.length} · ${stages[i].band.name}`,
         });
       }
@@ -1300,14 +1222,14 @@
         prevBtn.disabled = showAll || index === 0;
         nextBtn.disabled = showAll || index === stages.length - 1;
         wrap.classList.toggle("focus", !showAll);
-        showAllBtn.textContent = showAll ? "View one stage" : "View all";
-        showAllBtn.setAttribute("aria-pressed", String(showAll));
+        showAllBtn.textContent = showAll ? "Slideshow" : "Show all";
+        showAllBtn.setAttribute("aria-pressed", String(!showAll));
 
         if (showAll) {
           bandSub.textContent = `Overview of all ${stages.length} stages`;
           counter.textContent = `${stages.length} stages`;
           status.textContent =
-            "Overview. Use View one stage to return to card-by-card navigation.";
+            "Overview. Click Slideshow to navigate stage by stage.";
         } else {
           const stage = stages[index];
           bandSub.textContent = `${stage.band.name}: ${stage.band.sub}`;
@@ -1324,20 +1246,6 @@
         render();
       }
 
-      function updateThemeToggle() {
-        const light = isLightTheme();
-        themeToggle.textContent = light ? "Dark theme" : "Light theme";
-        themeToggle.setAttribute("aria-pressed", String(light));
-      }
-
-      function setTheme(theme, persist = true) {
-        document.documentElement.dataset.theme = theme;
-        if (persist) localStorage.setItem("pdlc-theme", theme);
-        updateThemeToggle();
-        renderAccentBands();
-        render();
-      }
-
       prevBtn.addEventListener("click", () => go(-1));
       nextBtn.addEventListener("click", () => go(1));
       showAllBtn.addEventListener("click", () => {
@@ -1345,12 +1253,7 @@
         render();
       });
 
-      themeToggle.addEventListener("click", () => {
-        setTheme(isLightTheme() ? "dark" : "light");
-      });
-
       renderAccentBands();
-      updateThemeToggle();
       render();
 
       document.addEventListener("keydown", (e) => {
